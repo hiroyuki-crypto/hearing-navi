@@ -160,7 +160,14 @@ function draw(){
   }
   var ph=PH[n.p];
   ap.innerHTML='<div class="phase-bar"><div class="phase-info"><span class="phase-icon">'+ph.ic+'</span><div><div class="phase-num">フェーズ '+n.p+'</div><div class="phase-label" style="color:'+ph.cl+'">'+ph.lb+'</div></div></div><div class="progress">'+[1,2,3,4].map(function(i){return'<div class="dot" style="background:'+(i<=n.p?ph.cl:'#3A3228')+'"></div>';}).join("")+'</div></div><div class="content">'+(n.t?'<div class="tone">💡 '+n.t+'</div>':'')+'<div class="card"><div class="card-lbl">お客様にこう伝えてください</div><div class="card-txt">「'+n.s+'」</div></div>'+(n.l?'<div class="hint">👂 聞きたいこと：<span>'+n.l+'</span></div>':'')+'<button class="btn-listen" id="listenBtn">👂 お客様の返答を聞く</button></div><div class="status"><div class="stxt" id="stxt">セリフを読み終えたら上のボタンを押してください</div><div class="cbar"><div class="cfill" id="cfill" style="width:0%"></div></div></div>';
-  document.getElementById("listenBtn").onclick=function(){if(isOn)stopListening();else startListening();};
+  document.getElementById("listenBtn").onclick=function(){
+    if(isOn){
+      stopListening();
+      if(voiceTxt.trim()){adv(voiceTxt.trim());}
+    }else{
+      startListening();
+    }
+  };
 }
 draw();
 </script>
