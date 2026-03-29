@@ -2,174 +2,1043 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>AI ヒアリングナビ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ヒアリングナビ｜キャンディハウス</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;background:#1A1714;color:#E8E0D4;min-height:100vh;display:flex;flex-direction:column}
-.phase-bar{background:#211E18;border-bottom:1px solid #3A3228;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.phase-info{display:flex;align-items:center;gap:10px}
-.phase-icon{font-size:22px}.phase-num{font-size:11px;color:#9B8E7E;font-weight:600}.phase-label{font-size:16px;font-weight:700}
-.progress{display:flex;gap:5px}.dot{width:28px;height:5px;border-radius:3px}
-.content{flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px;gap:14px}
-.tone{display:inline-block;align-self:flex-start;background:rgba(184,151,106,0.1);border:1px solid rgba(184,151,106,0.25);border-radius:10px;padding:7px 16px;font-size:15px;color:#B8976A;font-weight:600}
-.card{background:#2C2418;border-radius:20px;padding:28px 22px;border:2px solid #3A3228}
-.card-lbl{font-size:12px;color:#9B8E7E;font-weight:600;margin-bottom:14px;letter-spacing:0.1em}
-.card-txt{font-size:20px;font-weight:600;line-height:2;color:#E8E0D4}
-.hint{text-align:center;font-size:14px;color:#6B5D4F}.hint span{color:#9B8E7E}
-.btn-listen{background:#5E8B6A;color:#fff;border:none;border-radius:16px;padding:18px;font-size:17px;font-weight:700;width:100%;cursor:pointer;touch-action:manipulation}
-.btn-listen.on{background:#C4713B}
-.status{flex-shrink:0;background:#211E18;border-top:1px solid #3A3228;padding:16px 20px}
-.stxt{background:#2C2418;border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.8;color:#E8E0D4;min-height:52px;border:1px solid #3A3228}
-.cbar{height:4px;background:#3A3228;border-radius:2px;margin-top:10px;overflow:hidden}
-.cfill{height:100%;background:#C4713B;width:0%;transition:width 0.1s}
-.fs{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px;text-align:center}
-.fs-icon{font-size:56px;margin-bottom:20px}.fs-title{font-size:22px;font-weight:700;margin-bottom:6px}
-.fs-sub{font-size:13px;color:#B8976A;margin-bottom:6px}
-.fs-desc{font-size:15px;color:#6B5D4F;line-height:2.2;margin:28px 0 40px}.fs-desc span{color:#9B8E7E}
-.btn-start{background:#C4713B;color:#fff;border:none;border-radius:16px;padding:20px 48px;font-size:18px;font-weight:700;cursor:pointer;touch-action:manipulation}
-.btn-reset{margin-top:32px;background:#3A3228;color:#E8E0D4;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer}
-.card.ho{border-color:#5A3A28}.card.en{border-color:#2A4A32}
-.ibox{background:#1A2A20;border-radius:14px;padding:20px;border:1px solid #2A4A32;margin-top:20px;text-align:left}
-.ibox-lbl{font-size:11px;color:#5E8B6A;font-weight:600;margin-bottom:6px}
-.ibox-txt{font-size:14px;color:#A0D4B0;line-height:2}
-.ho-title{font-size:20px;font-weight:700;color:#C4713B;margin-bottom:24px}
-.en-title{font-size:20px;font-weight:700;color:#5E8B6A;margin-bottom:24px}
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap') screen;
+
+  :root {
+    --bg: #F7F4EF;
+    --surface: #FFFFFF;
+    --text: #1A1714;
+    --text-sub: #6B6460;
+    --accent: #D9622B;
+    --accent-light: #FBF0EB;
+    --border: #E5E0D8;
+    --progress-bg: #EDE9E3;
+    --step-color: #D9622B;
+
+    --candy: #D9622B;
+    --candy-bg: #FBF0EB;
+    --hiraya: #2B7BD9;
+    --hiraya-bg: #EBF3FB;
+    --ion: #2BAB5A;
+    --ion-bg: #EBF8F0;
+    --chintai: #8B4DB8;
+    --chintai-bg: #F5EDFB;
+
+    --radius: 12px;
+    --radius-lg: 20px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.06);
+    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 14px;
+  }
+  .header-badge {
+    font-size: 12px;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  /* PROGRESS */
+  .progress-area {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--progress-bg);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .step-dots {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .step-dot {
+    height: 4px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--progress-bg);
+    transition: background var(--transition);
+  }
+  .step-dot.done { background: var(--accent); }
+  .step-dot.active { background: var(--accent); opacity: 0.5; }
+
+  /* MAIN */
+  main {
+    flex: 1;
+    padding: 24px 16px 40px;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* STEP LABEL */
+  .step-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .step-label::before {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  /* QUESTION */
+  .question-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: slideIn 0.25s ease-out;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .question-text {
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .question-hint {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  /* OPTIONS */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    cursor: pointer;
+    transition: all var(--transition);
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .option-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    transform: translateX(2px);
+  }
+  .option-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+  .option-circle {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .option-btn.selected .option-circle {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .option-btn.selected .option-circle::after {
+    content: '';
+    display: block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: white;
+  }
+  .option-sub {
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .option-btn.selected .option-sub {
+    color: #B84D18;
+  }
+
+  /* SCORE PREVIEW (small badges shown during hearing) */
+  .score-preview {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .score-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    opacity: 0.5;
+    transition: all var(--transition);
+  }
+  .score-badge.leading {
+    opacity: 1;
+  }
+
+  /* NAVIGATION */
+  .nav-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .btn-back {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--text-sub);
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all var(--transition);
+  }
+  .btn-back:hover { border-color: var(--text-sub); }
+  .btn-back:disabled { opacity: 0.3; cursor: default; }
+  .btn-next {
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 12px 28px;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 4px 14px rgba(217,98,43,0.3);
+  }
+  .btn-next:hover { background: #C0551F; transform: translateY(-1px); }
+  .btn-next:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+
+  /* RESULT */
+  .result-screen { animation: slideIn 0.3s ease-out; }
+
+  .result-header {
+    text-align: center;
+    padding: 24px 0 16px;
+  }
+  .result-title {
+    font-size: 14px;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+  .result-product {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .result-tagline {
+    font-size: 14px;
+    color: var(--text-sub);
+  }
+
+  .product-card {
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+  }
+
+  .score-bar-container {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .score-bar-title {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .score-item {
+    margin-bottom: 12px;
+  }
+  .score-item-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .score-item-bar {
+    height: 8px;
+    background: var(--progress-bg);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .score-item-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* CLOSING SCRIPT */
+  .closing-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .closing-card h3 {
+    font-size: 14px;
+    color: var(--text-sub);
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .closing-card h3 .icon {
+    font-size: 16px;
+  }
+  .script-bubble {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .script-bubble:last-child { margin-bottom: 0; }
+
+  .hearing-summary {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .hearing-summary h3 {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .summary-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .summary-item-label {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-bottom: 3px;
+  }
+  .summary-item-value {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .btn-restart {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 14px;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    margin-top: 8px;
+  }
+  .btn-restart:hover { border-color: var(--text-sub); }
+
+  /* WELCOME */
+  .welcome-screen {
+    text-align: center;
+    padding: 40px 0 20px;
+    animation: slideIn 0.3s ease-out;
+  }
+  .welcome-icon {
+    width: 72px; height: 72px;
+    background: var(--accent-light);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
+  }
+  .welcome-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .welcome-desc {
+    font-size: 14px;
+    color: var(--text-sub);
+    line-height: 1.7;
+    max-width: 360px;
+    margin: 0 auto 32px;
+  }
+  .welcome-tips {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    text-align: left;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .welcome-tips h3 {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .tip-num {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .btn-start {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 16px;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 6px 20px rgba(217,98,43,0.35);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-start:hover { background: #C0551F; transform: translateY(-2px); }
 </style>
 </head>
 <body>
-<div id="app"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏠</div>
+    ヒアリングナビ
+  </div>
+  <div class="header-badge">株式会社市兵衛</div>
+</header>
+
+<div class="progress-area" id="progressArea" style="display:none">
+  <div class="progress-label">
+    <span id="progressStep">STEP 1 / 6</span>
+    <span id="progressPercent">0%</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="step-dots" id="stepDots"></div>
+</div>
+
+<main id="mainContent">
+</main>
+
 <script>
-var APIKEY="sk-ant-api03-2RAK8VAk7-rmNVe5FIi8ThToVsBE98e6_WL3OOTzyI9A5Yz1rE3x25Z5BsiShYhIOulFVXZtIL-hwCipkDVenw-N6mtnwAA";
-var N={start:{p:1,s:"本日はお越しいただきありがとうございます。まずは今のお住まいのこと、少し聞かせていただけますか。今のお家は築何年くらいですか？",t:"笑顔で、ゆっくりと",l:"築年数",nx:"floor"},floor:{p:1,s:"ありがとうございます。2階は普段使われていますか？",t:"うなずきながら",l:"2階の利用状況",next:["floor_unused","floor_used"],cond:"2階を使っていないまたは階段がしんどい場合はfloor_unused、使っている場合はfloor_used"},floor_unused:{p:1,s:"そうですよね、階段はだんだんしんどくなりますよね。同じようなお声、本当に多いんですよ。今のお住まいで一番「困っているな」と感じることは何ですか？",t:"共感するように",l:"住まいの一番の不満",nx:"rebuild_q"},floor_used:{p:1,s:"なるほど。ちなみに、今のお住まいで「ここが不便だな」と感じていることはありますか？",t:"興味を持って",l:"住まいの不満",nx:"rebuild_q"},rebuild_q:{p:2,s:"ありがとうございます。ちなみに、建て替えはこれまで考えたことはありましたか？",t:"さりげなく",l:"建て替え検討の有無",next:["rebuild_yes","rebuild_no"],cond:"建て替えを考えたことがある場合はrebuild_yes、ない場合はrebuild_no"},rebuild_yes:{p:2,s:"そうだったんですね。それでも踏み切れなかったのは、何かネックになることがあったんですか？",t:"寄り添うように",l:"踏み切れない理由",next:["signal_no_heir","signal_mottainai","signal_akiya","cost_concern","family_q"],cond:"子供や跡継ぎがいない話が出ればsignal_no_heir、もったいないという話ならsignal_mottainai、空き家への懸念ならsignal_akiya、費用や予算の話ならcost_concern、それ以外はfamily_q"},rebuild_no:{p:2,s:"なるほど。今の家にこのまま住み続けるご予定ですか？それとも、いつかは何か変えたいなというお気持ちはありますか？",t:"ゆっくりと",l:"将来への考え",nx:"family_q"},cost_concern:{p:2,s:"費用のこと、大事ですよね。よくわかります。ちなみにご家族構成を教えていただいてもいいですか？お子さんはいらっしゃいますか？",t:"丁寧に",l:"家族構成",next:["signal_no_heir","has_children","future_q"],cond:"子供がいない場合はsignal_no_heir、子供がいる場合はhas_children、不明な場合はfuture_q"},family_q:{p:2,s:"ありがとうございます。ちなみに、ご家族構成を教えていただいてもいいですか？お子さんはいらっしゃいますか？",t:"自然に",l:"家族構成",next:["signal_no_heir","has_children","future_q"],cond:"子供がいない場合はsignal_no_heir、子供がいる場合はhas_children、不明な場合はfuture_q"},signal_no_heir:{p:3,s:"そうなんですね。ありがとうございます。…ちなみに、将来この家をどうされたいとか、何かお考えはありますか？",t:"落ち着いて、ゆっくり",l:"家の将来への考え",next:["pitch_hot","pitch_akiya","pitch_soft"],cond:"寄付や社会貢献の話が出ればpitch_hot、空き家や処分の話ならpitch_akiya、それ以外はpitch_soft"},signal_mottainai:{p:3,s:"「もったいない」って思いますよね。すごくよくわかります。ちなみにお子さんはいらっしゃいますか？",t:"共感して",l:"家族構成",next:["signal_no_heir","has_children"],cond:"子供がいない場合はsignal_no_heir、いる場合はhas_children"},signal_akiya:{p:3,s:"空き家のこと、気にされているんですね。実は最近、同じ悩みを持たれている方がとても多いんです。ちなみにお子さんはいらっしゃいますか？",t:"共感して",l:"家族構成",next:["signal_no_heir","has_children"],cond:"子供がいない場合はsignal_no_heir、いる場合はhas_children"},has_children:{p:3,s:"お子さんがいらっしゃるんですね。お子さんは将来この家に住まれるご予定ですか？それとも別のところにお住まいですか？",t:"自然に",l:"子供の居住予定",next:["pitch_family_stay","pitch_family_away"],cond:"子供がこの家に住む予定ならpitch_family_stay、住まない場合はpitch_family_away"},future_q:{p:3,s:"ありがとうございます。少し先のことをお聞きしてもいいですか？将来、この家をどうされたいと思っていますか？",t:"落ち着いて",l:"家の将来への考え",next:["pitch_family_away","pitch_soft"],cond:"子供や家族に残したい話ならpitch_family_away、それ以外はpitch_soft"},pitch_soft:{p:3,s:"実は最近、同じようなお悩みの方で「建て替える時に、家の未来も一緒に決めてしまう」という方が増えていまして。もったいないから建てない、じゃなくて、人の役に立てるから建てる、という考え方なんですが…少し詳しいお話、聞いてみたいですか？",t:"明るく、でも押さずに",l:"興味の有無",next:["handoff_warm","end_cool"],cond:"興味を示した場合はhandoff_warm、興味なさそうな場合はend_cool"},pitch_akiya:{p:3,s:"空き家を防ぐ方法として、建て替えの時に「住まなくなった後の使い道」まで決めてしまう仕組みがあるんです。たとえば売却してその代金をどこかに届けたり、賃貸として誰かに住んでもらったり。…少し詳しく聞いてみたいですか？",t:"丁寧に、安心感を持って",l:"興味の有無",next:["handoff_warm","end_cool"],cond:"興味を示した場合はhandoff_warm、興味なさそうな場合はend_cool"},pitch_hot:{p:3,s:"素晴らしいお考えですね！実はまさに、建て替えと同時に届け先を決められる仕組みがありまして。詳しいご説明ができる者がおりますので、少しお話しさせていただいてもいいですか？",t:"明るく嬉しそうに",l:"プロ接続の了承",nx:"handoff_hot"},pitch_family_away:{p:3,s:"なるほど。お子さんがこの家に住まれない場合、将来の家のことが少し気になりますよね。実は、建て替えの時に「家の未来」まで一緒に設計する仕組みがありまして。お子さんに資産として残すことも、社会に届けることもできるんです。少し聞いてみたいですか？",t:"寄り添うように",l:"興味の有無",next:["handoff_warm","end_cool"],cond:"興味を示した場合はhandoff_warm、興味なさそうな場合はend_cool"},pitch_family_stay:{p:3,s:"それは安心ですね。将来お子さんが住まれるなら、バリアフリーの平屋にしておくと長く使えますよ。平屋の間取りや費用について、詳しい者からご説明させていただいてもいいですか？",t:"自然に",l:"説明希望の有無",nx:"handoff_standard"},handoff_hot:{p:4,tp:"handoff",s:"ありがとうございます！それでは詳しい者をお呼びしますので、少々お待ちくださいね。",t:"嬉しそうに",rs:"お客様が寄付・社会貢献に強い関心。パターンA・Bを中心にご説明ください。"},handoff_warm:{p:4,tp:"handoff",s:"ありがとうございます。それでは、詳しい者からわかりやすくご説明させていただきますね。少々お待ちください。",t:"安心させるように",rs:"お客様が「家の未来」に興味あり。3パターンの概要からご説明ください。"},handoff_standard:{p:4,tp:"handoff",s:"ありがとうございます。それでは詳しい者をお呼びしますね。少々お待ちください。",t:"自然に",rs:"平屋の建て替えに興味あり。相続人がいるケース。パターンCを中心に。"},end_cool:{p:4,tp:"end",s:"もちろんです。無理にお勧めすることはありませんので、ご安心くださいね。本日は平屋のパンフレットをお渡ししますので、よかったらご覧になってみてください。本日はお越しいただき、ありがとうございました。",t:"笑顔で、温かく",ea:"パンフレットをお渡しして、お見送りしてください。後日フォローの電話を入れます。"}};
-var PH={1:{lb:"アイスブレイク",cl:"#5E8B6A",ic:"☕"},2:{lb:"ニーズ深掘り",cl:"#B8976A",ic:"🔍"},3:{lb:"核心の質問",cl:"#C4713B",ic:"💎"},4:{lb:"クロージング",cl:"#8B6E4E",ic:"🎯"}};
-var cur=null,rec=null,isOn=false,voiceTxt="",silTimer=null,cdTimer=null,cdPct=0,WAIT=4000;
-var ap=document.getElementById("app");
+const STEPS = [
+  {
+    id: "s1",
+    label: "STEP 1　家族構成・現状",
+    questions: [
+      {
+        id: "q1",
+        text: "今のお住まいは？",
+        hint: "現在の住居状況を確認します",
+        options: [
+          { text: "賃貸（アパート・マンション）", sub: "家賃を毎月支払い中", score: { candy: 2, chuko: 1 } },
+          { text: "持ち家（自分・配偶者名義）", sub: "すでに不動産をお持ち", score: { tatekae: 1 } },
+          { text: "実家・親の家", sub: "家族所有の家に居住", score: { candy: 1, tatekae: 1 } },
+          { text: "その他", sub: "社宅・寮など", score: { candy: 1 } }
+        ]
+      },
+      {
+        id: "q2",
+        text: "ご家族の人数は？",
+        hint: "必要な間取り・広さのご参考に",
+        options: [
+          { text: "おひとり", sub: "単身", score: { chuko: 1 } },
+          { text: "2人（夫婦のみ）", sub: "2人暮らし", score: { candy: 1, chuko: 1 } },
+          { text: "3〜4人", sub: "お子さんあり", score: { candy: 2 } },
+          { text: "5人以上", sub: "大家族", score: { candy: 2 } }
+        ]
+      },
+      {
+        id: "q3",
+        text: "現在の家賃（住居費）は？",
+        hint: "毎月のコスト感を把握します",
+        options: [
+          { text: "〜5万円", sub: "比較的安い賃料", score: { candy: 3 } },
+          { text: "5〜8万円", sub: "一般的な賃料帯", score: { candy: 2, chuko: 1 } },
+          { text: "8万円以上", sub: "それなりの賃料", score: { candy: 1 } },
+          { text: "なし（実家・持ち家）", sub: "住居費の支出がない", score: { tatekae: 1 } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "s2",
+    label: "STEP 2　きっかけ・動機",
+    questions: [
+      {
+        id: "q4",
+        text: "住まいを考えたきっかけは？",
+        hint: "お客様の一番の動機を把握します",
+        options: [
+          { text: "家賃がもったいない・毎月捨て金", sub: "ローン支払いに切り替えたい", score: { candy: 3 } },
+          { text: "子供が生まれた・増えた", sub: "家族が増えて手狭に", score: { candy: 2 } },
+          { text: "結婚・同棲を機に", sub: "新生活のスタートとして", score: { candy: 2 } },
+          { text: "今の家が古くなった・設備が悪い", sub: "建て替え・リフォームを検討", score: { chuko: 2, tatekae: 2 } },
+          { text: "相続・親の土地をどうにかしたい", sub: "土地活用・建て替えを検討", score: { tatekae: 2, chintai: 3 } }
+        ]
+      },
+      {
+        id: "q5",
+        text: "新築・中古、どちらをお考えですか？",
+        hint: "商材の方向性を絞り込みます",
+        options: [
+          { text: "絶対に新築がいい", sub: "新築にこだわりあり", score: { candy: 3 } },
+          { text: "新築希望だが、予算次第", sub: "コストを重視している", score: { candy: 2, chuko: 1 } },
+          { text: "中古でもまったくOK", sub: "コスパ・立地優先", score: { chuko: 3 } },
+          { text: "どちらでも（まだ決めていない）", sub: "情報収集の段階", score: { candy: 1, chuko: 1 } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "s3",
+    label: "STEP 3　予算・資金計画",
+    questions: [
+      {
+        id: "q6",
+        text: "月々のローン支払いの上限は？",
+        hint: "無理のない支払い金額を確認します",
+        options: [
+          { text: "〜6万円", sub: "できるだけ抑えたい", score: { candy: 3 } },
+          { text: "6〜8万円", sub: "現在の家賃と同水準", score: { candy: 3 } },
+          { text: "8〜10万円", sub: "少し余裕を持たせたい", score: { candy: 2, chuko: 1 } },
+          { text: "10万円以上", sub: "こだわりに投資できる", score: { chuko: 1 } }
+        ]
+      },
+      {
+        id: "q7",
+        text: "頭金はどのくらい用意できますか？",
+        hint: "資金計画のベースを把握します",
+        options: [
+          { text: "ほぼなし（フルローン希望）", sub: "頭金なしで検討中", score: { candy: 3 } },
+          { text: "100万円未満", sub: "少額は用意できる", score: { candy: 2 } },
+          { text: "100〜300万円", sub: "ある程度用意できる", score: { candy: 1, chuko: 1 } },
+          { text: "300万円以上", sub: "ある程度の頭金あり", score: { chuko: 1 } }
+        ]
+      },
+      {
+        id: "q8",
+        text: "世帯年収（合算）はどのくらいですか？",
+        hint: "借入可能額の目安を把握します",
+        options: [
+          { text: "〜350万円", sub: "おひとりまたは片方が主収入", score: { candy: 3 } },
+          { text: "350〜500万円", sub: "一般的な所得帯", score: { candy: 3 } },
+          { text: "500〜700万円", sub: "共働きなど", score: { candy: 1, chuko: 1 } },
+          { text: "700万円以上", sub: "収入に余裕あり", score: { chuko: 1 } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "s4",
+    label: "STEP 4　土地・場所",
+    questions: [
+      {
+        id: "q9",
+        text: "土地はお持ちですか？",
+        hint: "土地の有無で提案内容が変わります",
+        options: [
+          { text: "自分・配偶者名義の土地がある", sub: "すでに建築地がある", score: { candy: 2, tatekae: 2, chintai: 2 } },
+          { text: "親・家族の土地を使えそう", sub: "家族所有の土地を活用", score: { candy: 1, tatekae: 1, chintai: 1 } },
+          { text: "土地なし・購入から始める", sub: "土地探しも必要", score: { candy: 1, chuko: 1 } }
+        ]
+      },
+      {
+        id: "q10",
+        text: "建てたい場所のご希望は？",
+        hint: "エリア優先度を確認します",
+        options: [
+          { text: "通勤・通学を最優先", sub: "アクセス重視", score: { chuko: 1 } },
+          { text: "学校区（小学校など）を重視", sub: "子育て環境を優先", score: { candy: 1 } },
+          { text: "実家・親の近くに住みたい", sub: "サポート・親孝行", score: { candy: 1 } },
+          { text: "特定のエリアがある", sub: "希望地域が決まっている", score: { candy: 1 } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "s5",
+    label: "STEP 5　建物の希望",
+    questions: [
+      {
+        id: "q11",
+        text: "平屋・2階建て、どちらをご希望ですか？",
+        hint: "建物タイプの好みを確認します",
+        options: [
+          { text: "2階建てがいい", sub: "床面積を縦に確保したい", score: { candy: 2 } },
+          { text: "平屋がいい", sub: "バリアフリー・コンパクト生活", score: { tatekae: 3 } },
+          { text: "どちらでも", sub: "予算・プランによって", score: { candy: 1 } }
+        ]
+      },
+      {
+        id: "q12",
+        text: "こだわりで一番大切なことは？",
+        hint: "提案の方向性を絞り込みます",
+        options: [
+          { text: "とにかくコスパ重視・安く建てたい", sub: "価格が最優先", score: { candy: 4 } },
+          { text: "設備・キッチンにこだわりたい", sub: "住み心地を大切に", score: { candy: 1, chuko: 1 } },
+          { text: "デザイン・外観にこだわりたい", sub: "見た目を大切に", score: { candy: 1 } },
+          { text: "光熱費・省エネを重視", sub: "ランニングコスト優先", score: { candy: 1 } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "s6",
+    label: "STEP 6　時期・状況",
+    questions: [
+      {
+        id: "q13",
+        text: "いつ頃までに入居を希望しますか？",
+        hint: "ご検討のスケジュールを把握します",
+        options: [
+          { text: "できるだけ早く（3ヶ月以内）", sub: "急ぎで動きたい", score: { candy: 2 }, urgent: true },
+          { text: "半年以内が目標", sub: "今年中には入居したい", score: { candy: 1 } },
+          { text: "1年以内", sub: "じっくり検討しながら", score: {} },
+          { text: "まだ未定・情報収集中", sub: "いつでも相談できる", score: {} }
+        ]
+      },
+      {
+        id: "q14",
+        text: "他社・他ブランドも検討していますか？",
+        hint: "競合状況を把握してご提案を最適化",
+        options: [
+          { text: "まだここだけ", sub: "比較検討はしていない", score: { candy: 1 } },
+          { text: "大手ハウスメーカーも見ている", sub: "ハウスメーカーと比較中", score: {} },
+          { text: "地元の工務店も見ている", sub: "工務店と比較中", score: { candy: 1 } },
+          { text: "複数社を比較中", sub: "しっかり比較して決めたい", score: {} }
+        ]
+      }
+    ]
+  }
+];
 
-async function judgeNext(answer){
-  var n=N[cur];
-  if(n.nx)return n.nx;
-  if(!n.next||!n.cond)return null;
-  var stEl=document.getElementById("stxt");
-  if(stEl)stEl.textContent="🤔 AIが判断中…";
-  try{
-    var res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":APIKEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:30,messages:[{role:"user",content:"質問：「"+n.s+"」\nお客様の回答：「"+answer+"」\n判断："+n.cond+"\n選択肢："+n.next.join(",")+"\n選択肢の1つだけ返してください。"}]})
-    });
-    var d=await res.json();
-    var nx=(function(){var t=d.content[0].text.trim();return n.next.find(function(k){return t.indexOf(k)>=0})||n.next[0]})();
-    return nx;
-  }catch(e){
-    console.error("API error:",e);
-    return n.next[0];
+const PRODUCTS = {
+  candy:   { name: "キャンディハウス",   tagline: "ローコスト新築住宅", color: "#D9622B", bgColor: "#FBF0EB", icon: "🏡" },
+  tatekae: { name: "平屋マーケット",     tagline: "平屋・建て替え専門", color: "#2B7BD9", bgColor: "#EBF3FB", icon: "🏠" },
+  chuko:   { name: "イオンハウジング藤井寺", tagline: "中古＋リフォーム",  color: "#2BAB5A", bgColor: "#EBF8F0", icon: "🔑" },
+  chintai: { name: "戸建賃貸",           tagline: "土地活用・相続対策",  color: "#8B4DB8", bgColor: "#F5EDFB", icon: "🏢" }
+};
+
+const CLOSING_SCRIPTS = {
+  candy: [
+    "「毎月○万円の家賃を払い続けるのは、もったいないと思いませんか？キャンディハウスなら、同じ支払い額で新築の『自分の家』に住めます。」",
+    "「頭金がなくても、フルローンで新築が建てられます。今の家賃より安いケースも多いんですよ。」",
+    "「キャンディハウスは、必要な部分に絞って価格を下げた商品です。品質はそのままで、とにかくお手頃に新築を実現できます。一度モデルハウスをご覧になりませんか？」"
+  ],
+  tatekae: [
+    "「今の家が古くなっていることへのご不安、よくわかります。平屋マーケットなら、同じ敷地で新しい平屋に建て替えることができます。」",
+    "「お一人やご夫婦お二人での暮らしには、平屋がとても機能的です。バリアフリーで将来も安心して暮らせます。」"
+  ],
+  chuko: [
+    "「新築にこだわりたいお気持ちはわかりますが、予算的に難しい場合、中古＋リフォームという選択肢があります。」",
+    "「中古物件にリフォームを加えれば、新築同様の内装・設備にできます。立地や価格は中古のメリットをそのままに、住み心地は新築以上になることもあります。」"
+  ],
+  chintai: [
+    "「お持ちの土地を活用して、戸建賃貸にするという選択肢はご存知ですか？毎月の家賃収入で、安定したキャッシュフローをつくることができます。」",
+    "「相続対策としても、土地に戸建を建てると評価額を大幅に下げることができます。一度、収支シミュレーションをしてみましょう。」"
+  ]
+};
+
+function safeScrollTop() {
+  try { window.scrollTo(0, 0); } catch(e) {}
+  try { document.documentElement.scrollTop = 0; } catch(e) {}
+}
+
+// State
+let currentScreen = "welcome"; // welcome, hearing, result
+let currentStepIdx = 0;
+let currentQIdx = 0;
+let answers = {};
+let scores = { candy: 0, tatekae: 0, chuko: 0, chintai: 0 };
+let allQuestions = [];
+
+// Flatten all questions
+STEPS.forEach((step, si) => {
+  step.questions.forEach((q, qi) => {
+    allQuestions.push({ ...q, stepIdx: si, stepLabel: step.label });
+  });
+});
+
+let totalQuestions = allQuestions.length;
+let currentQFlat = 0; // flat index
+
+function init() {
+  render();
+}
+
+function render() {
+  const main = document.getElementById('mainContent');
+  const progressArea = document.getElementById('progressArea');
+
+  if (currentScreen === "welcome") {
+    progressArea.style.display = "none";
+    main.innerHTML = renderWelcome();
+  } else if (currentScreen === "hearing") {
+    progressArea.style.display = "block";
+    updateProgress();
+    const q = allQuestions[currentQFlat];
+    main.innerHTML = renderQuestion(q);
+  } else if (currentScreen === "result") {
+    progressArea.style.display = "none";
+    main.innerHTML = renderResult();
+    setTimeout(() => animateBars(), 100);
   }
 }
 
-async function adv(answer){
-  if(!cur)return;
-  var nx=await judgeNext(answer);
-  if(nx&&N[nx]){cur=nx;draw();}
+function renderWelcome() {
+  return `
+  <div class="welcome-screen">
+    <div class="welcome-icon">🏘️</div>
+    <div class="welcome-title">ヒアリングナビへようこそ</div>
+    <div class="welcome-desc">お客様の状況をヒアリングして、最適な商材と<br>クロージングトークをご提案します</div>
+    <div class="welcome-tips">
+      <h3>使い方のポイント</h3>
+      <div class="tip-item">
+        <div class="tip-num">1</div>
+        <div>お客様に質問を読み上げ、当てはまる回答を選んでタップしてください</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">2</div>
+        <div>全14問のヒアリング後、商材が自動診断されます</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">3</div>
+        <div>クロージングトークスクリプトが自動表示されます</div>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startHearing()">
+      ヒアリングをはじめる ▶
+    </button>
+  </div>`;
 }
 
-function clearTimers(){
-  if(silTimer){clearTimeout(silTimer);silTimer=null;}
-  if(cdTimer){clearInterval(cdTimer);cdTimer=null;}
-  cdPct=0;
-  var f=document.getElementById("cfill");
-  if(f)f.style.width="0%";
+function renderQuestion(q) {
+  const selectedVal = answers[q.id];
+  const stepInfo = `STEP ${q.stepIdx + 1}　${STEPS[q.stepIdx].label.replace(/STEP \d\s*/, '')}`;
+
+  let optionsHtml = q.options.map((opt, i) => `
+    <button class="option-btn ${selectedVal === i ? 'selected' : ''}"
+      onclick="selectOption(${i})">
+      <div class="option-circle"></div>
+      <div>
+        <div>${opt.text}</div>
+        ${opt.sub ? `<div class="option-sub">${opt.sub}</div>` : ''}
+      </div>
+    </button>
+  `).join('');
+
+  const isFirst = currentQFlat === 0;
+  const isLast = currentQFlat === totalQuestions - 1;
+  const hasAnswer = selectedVal !== undefined;
+
+  return `
+  <div class="question-card">
+    <div class="step-label">${stepInfo}</div>
+    <div class="question-text">${q.text}</div>
+    ${q.hint ? `<div class="question-hint">${q.hint}</div>` : ''}
+    <div class="options">${optionsHtml}</div>
+  </div>
+  <div class="nav-area">
+    <button class="btn-back" onclick="goBack()" ${isFirst ? 'disabled' : ''}>
+      ← 戻る
+    </button>
+    <button class="btn-next" onclick="goNext()" ${!hasAnswer ? 'disabled' : ''}>
+      ${isLast ? '診断する ✓' : '次へ →'}
+    </button>
+  </div>`;
 }
 
-function startCountdown(){
-  clearTimers();
-  cdPct=100;
-  var start=Date.now();
-  cdTimer=setInterval(function(){
-    cdPct=Math.max(0,100-((Date.now()-start)/WAIT)*100);
-    var f=document.getElementById("cfill");
-    if(f)f.style.width=cdPct+"%";
-  },50);
-  silTimer=setTimeout(function(){
-    clearTimers();
-    var answer=voiceTxt.trim();
-    if(answer){
-      stopListening();
-      adv(answer);
+function renderResult() {
+  const topProduct = getTopProduct();
+  const product = PRODUCTS[topProduct];
+  const scripts = CLOSING_SCRIPTS[topProduct] || [];
+
+  // Build score bars
+  const maxScore = Math.max(...Object.values(scores), 1);
+  const barHtml = Object.entries(PRODUCTS).map(([key, p]) => {
+    const pct = Math.round((scores[key] / maxScore) * 100);
+    return `
+    <div class="score-item">
+      <div class="score-item-label">
+        <span>${p.name}</span>
+        <span style="color:${p.color}">${scores[key]}pt</span>
+      </div>
+      <div class="score-item-bar">
+        <div class="score-item-fill" id="bar-${key}" style="width:0%;background:${p.color}" data-target="${pct}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Build summary
+  const summaryItems = [
+    { label: "住まいの状況", qid: "q1" },
+    { label: "家族構成", qid: "q2" },
+    { label: "きっかけ", qid: "q4" },
+    { label: "月々の予算", qid: "q6" },
+    { label: "土地", qid: "q9" },
+    { label: "入居希望時期", qid: "q13" }
+  ].map(item => {
+    const q = allQuestions.find(q => q.id === item.qid);
+    const aIdx = answers[item.qid];
+    const aText = (q && aIdx !== undefined) ? q.options[aIdx].text : "未回答";
+    return `
+    <div class="summary-item">
+      <div class="summary-item-label">${item.label}</div>
+      <div class="summary-item-value">${aText}</div>
+    </div>`;
+  }).join('');
+
+  const scriptHtml = scripts.map(s => `<div class="script-bubble">${s}</div>`).join('');
+
+  return `
+  <div class="result-screen">
+    <div class="result-header">
+      <div class="result-title">🎯 診断結果</div>
+      <div class="result-product" style="color:${product.color}">${product.icon} ${product.name}</div>
+      <div class="result-tagline">${product.tagline}</div>
+    </div>
+
+    <div class="score-bar-container">
+      <div class="score-bar-title">商材スコア（高いほど適合度が高い）</div>
+      ${barHtml}
+    </div>
+
+    <div class="closing-card">
+      <h3><span class="icon">💬</span>クロージングトークスクリプト</h3>
+      ${scriptHtml}
+    </div>
+
+    <div class="hearing-summary">
+      <h3>ヒアリング内容サマリー</h3>
+      <div class="summary-grid">${summaryItems}</div>
+    </div>
+
+    <button class="btn-restart" onclick="restart()">🔄 最初からやり直す</button>
+  </div>`;
+}
+
+function animateBars() {
+  document.querySelectorAll('.score-item-fill').forEach(bar => {
+    const target = bar.getAttribute('data-target');
+    bar.style.width = target + '%';
+  });
+}
+
+function getTopProduct() {
+  return Object.entries(scores).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+}
+
+function updateProgress() {
+  const pct = Math.round((currentQFlat / totalQuestions) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  const q = allQuestions[currentQFlat];
+  document.getElementById('progressStep').textContent = `STEP ${q.stepIdx + 1} / 6　Q${currentQFlat + 1} / ${totalQuestions}`;
+  document.getElementById('progressPercent').textContent = pct + '%';
+
+  // Step dots
+  const dotsEl = document.getElementById('stepDots');
+  dotsEl.innerHTML = STEPS.map((_, i) => {
+    let cls = '';
+    if (i < q.stepIdx) cls = 'done';
+    else if (i === q.stepIdx) cls = 'active';
+    return `<div class="step-dot ${cls}"></div>`;
+  }).join('');
+}
+
+function startHearing() {
+  currentScreen = "hearing";
+  currentQFlat = 0;
+  answers = {};
+  scores = { candy: 0, tatekae: 0, chuko: 0, chintai: 0 };
+  render();
+}
+
+function restart() {
+  currentScreen = "welcome";
+  currentQFlat = 0;
+  answers = {};
+  scores = { candy: 0, tatekae: 0, chuko: 0, chintai: 0 };
+  render();
+  safeScrollTop();
+}
+
+function selectOption(optIdx) {
+  const q = allQuestions[currentQFlat];
+  const prevIdx = answers[q.id];
+
+  // Subtract previous score if re-selecting
+  if (prevIdx !== undefined) {
+    const prevOpt = q.options[prevIdx];
+    if (prevOpt && prevOpt.score) {
+      Object.entries(prevOpt.score).forEach(([k, v]) => { scores[k] = (scores[k] || 0) - v; });
     }
-  },WAIT);
-}
-
-function startListening(){
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR)return;
-  if(rec){try{rec.stop();}catch(e){}}
-  voiceTxt="";isOn=true;updateBtn();
-  var stEl=document.getElementById("stxt");
-  if(stEl)stEl.textContent="話してください…";
-  rec=new SR();
-  rec.lang="ja-JP";rec.interimResults=true;rec.continuous=true;
-  rec.onresult=function(e){
-    var s="";
-    for(var i=0;i<e.results.length;i++)s+=e.results[i][0].transcript;
-    voiceTxt=s;
-    var stEl=document.getElementById("stxt");
-    if(stEl)stEl.textContent=s;
-    clearTimers();
-    startCountdown();
-  };
-  rec.onerror=function(e){console.log("mic error:",e.error);};
-  rec.onend=function(){};
-  rec.start();
-  startCountdown();
-}
-
-function stopListening(){
-  isOn=false;
-  clearTimers();
-  if(rec){try{rec.stop();}catch(e){}}
-  rec=null;
-  updateBtn();
-}
-
-function updateBtn(){
-  var b=document.getElementById("listenBtn");
-  if(!b)return;
-  if(isOn){b.textContent="🎤 聞いています…（タップで止める）";b.className="btn-listen on";}
-  else{b.textContent="👂 お客様の返答を聞く";b.className="btn-listen";}
-}
-
-function resetAll(){stopListening();cur=null;voiceTxt="";draw();}
-
-function draw(){
-  if(!cur){
-    ap.innerHTML='<div class="fs"><div style="max-width:420px"><div class="fs-icon">🏠</div><div class="fs-title">AI ヒアリングナビ</div><div class="fs-sub">「最後の家を、誰かの未来に」</div><div class="fs-desc">セリフを読み終えたら<br>「お客様の返答を聞く」を押してください。<br><span>AIがお客様の言葉を理解して次に進みます。</span></div><button class="btn-start" id="startBtn">ヒアリングを開始する</button></div></div>';
-    document.getElementById("startBtn").onclick=function(){cur="start";draw();};
-    return;
   }
-  var n=N[cur];
-  if(n.tp==="handoff"){
-    ap.innerHTML='<div class="fs"><div style="max-width:520px"><div class="fs-icon">🤝</div><div class="ho-title">担当者にバトンタッチ</div><div class="card ho"><div class="card-lbl">お客様にこう伝えてください</div><div class="card-txt">「'+n.s+'」</div>'+(n.t?'<div style="margin-top:14px;font-size:14px;color:#B8976A;font-weight:600">💡 '+n.t+'</div>':'')+'</div>'+(n.rs?'<div class="ibox"><div class="ibox-lbl">担当者への申し送り：</div><div class="ibox-txt">'+n.rs+'</div></div>':'')+'<button class="btn-reset" id="resetBtn">最初に戻る</button></div></div>';
-    document.getElementById("resetBtn").onclick=function(){resetAll();};
-    return;
+
+  // Set new answer and add new score
+  answers[q.id] = optIdx;
+  const opt = q.options[optIdx];
+  if (opt && opt.score) {
+    Object.entries(opt.score).forEach(([k, v]) => { scores[k] = (scores[k] || 0) + v; });
   }
-  if(n.tp==="end"){
-    ap.innerHTML='<div class="fs"><div style="max-width:520px"><div class="fs-icon">📋</div><div class="en-title">ヒアリング完了</div><div class="card en"><div class="card-lbl">お客様にこう伝えてください</div><div class="card-txt">「'+n.s+'」</div>'+(n.t?'<div style="margin-top:14px;font-size:14px;color:#B8976A;font-weight:600">💡 '+n.t+'</div>':'')+'</div>'+(n.ea?'<div class="ibox"><div class="ibox-lbl">次にやること：</div><div class="ibox-txt">'+n.ea+'</div></div>':'')+'<button class="btn-reset" id="resetBtn">最初に戻る</button></div></div>';
-    document.getElementById("resetBtn").onclick=function(){resetAll();};
-    return;
-  }
-  var ph=PH[n.p];
-  ap.innerHTML='<div class="phase-bar"><div class="phase-info"><span class="phase-icon">'+ph.ic+'</span><div><div class="phase-num">フェーズ '+n.p+'</div><div class="phase-label" style="color:'+ph.cl+'">'+ph.lb+'</div></div></div><div class="progress">'+[1,2,3,4].map(function(i){return'<div class="dot" style="background:'+(i<=n.p?ph.cl:'#3A3228')+'"></div>';}).join("")+'</div></div><div class="content">'+(n.t?'<div class="tone">💡 '+n.t+'</div>':'')+'<div class="card"><div class="card-lbl">お客様にこう伝えてください</div><div class="card-txt">「'+n.s+'」</div></div>'+(n.l?'<div class="hint">👂 聞きたいこと：<span>'+n.l+'</span></div>':'')+'<button class="btn-listen" id="listenBtn">👂 お客様の返答を聞く</button></div><div class="status"><div class="stxt" id="stxt">セリフを読み終えたら上のボタンを押してください</div><div class="cbar"><div class="cfill" id="cfill" style="width:0%"></div></div></div>';
-  document.getElementById("listenBtn").onclick=function(){
-    if(isOn){
-      stopListening();
-      if(voiceTxt.trim()){adv(voiceTxt.trim());}
-    }else{
-      startListening();
-    }
-  };
+
+  render();
 }
-draw();
+
+function goNext() {
+  if (answers[allQuestions[currentQFlat].id] === undefined) return;
+  if (currentQFlat < totalQuestions - 1) {
+    currentQFlat++;
+    render();
+    safeScrollTop();
+  } else {
+    currentScreen = "result";
+    render();
+    safeScrollTop();
+  }
+}
+
+function goBack() {
+  if (currentQFlat > 0) {
+    currentQFlat--;
+    render();
+    safeScrollTop();
+  }
+}
+
+init();
 </script>
 </body>
 </html>
