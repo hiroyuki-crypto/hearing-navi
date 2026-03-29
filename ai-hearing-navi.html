@@ -59,8 +59,7 @@ async function judgeNext(answer){
       body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:30,messages:[{role:"user",content:"質問：「"+n.s+"」\nお客様の回答：「"+answer+"」\n判断："+n.cond+"\n選択肢："+n.next.join(",")+"\n選択肢の1つだけ返してください。"}]})
     });
     var d=await res.json();
-    var nx=d.content[0].text.trim().replace(/[^a-z_]/gi,"");
-    return n.next.indexOf(nx)>=0?nx:n.next[0];
+    var var raw=d.content[0].text.trim();nx=n.next.find(function(k){return raw.indexOf(k)>=0})||n.next[0];
   }catch(e){
     console.error("API error:",e);
     return n.next[0];
