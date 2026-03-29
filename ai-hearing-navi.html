@@ -1,1044 +1,965 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ヒアリングナビ｜キャンディハウス</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap') screen;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ヒアリングナビ｜株式会社市兵衛</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
-  :root {
-    --bg: #F7F4EF;
-    --surface: #FFFFFF;
-    --text: #1A1714;
-    --text-sub: #6B6460;
-    --accent: #D9622B;
-    --accent-light: #FBF0EB;
-    --border: #E5E0D8;
-    --progress-bg: #EDE9E3;
-    --step-color: #D9622B;
+    :root {
+      --accent: #D9622B;
+      --accent-hover: #c25524;
+      --accent-soft: #FBF0EB;
+      --bg: #F7F4EF;
+      --surface: #FFFFFF;
+      --text: #1A1714;
+      --muted: #6B6460;
+      --border: #E5E0D8;
+      --danger: #B3261E;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
 
-    --candy: #D9622B;
-    --candy-bg: #FBF0EB;
-    --hiraya: #2B7BD9;
-    --hiraya-bg: #EBF3FB;
-    --ion: #2BAB5A;
-    --ion-bg: #EBF8F0;
-    --chintai: #8B4DB8;
-    --chintai-bg: #F5EDFB;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    --radius: 12px;
-    --radius-lg: 20px;
-    --shadow: 0 2px 16px rgba(0,0,0,0.06);
-    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+    body {
+      font-family: 'Noto Sans JP', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ----- Header ----- */
+    .app-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
 
-  body {
-    font-family: 'Noto Sans JP', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+    .header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 16px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
 
-  /* HEADER */
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.02em;
-  }
-  .logo-icon {
-    width: 28px; height: 28px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: white;
-    font-size: 14px;
-  }
-  .header-badge {
-    font-size: 12px;
-    background: var(--accent-light);
-    color: var(--accent);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
+    .brand {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
 
-  /* PROGRESS */
-  .progress-area {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 24px;
-  }
-  .progress-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-sub);
-    margin-bottom: 6px;
-  }
-  .progress-bar {
-    height: 4px;
-    background: var(--progress-bg);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .step-dots {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-  }
-  .step-dot {
-    height: 4px;
-    flex: 1;
-    border-radius: 2px;
-    background: var(--progress-bg);
-    transition: background var(--transition);
-  }
-  .step-dot.done { background: var(--accent); }
-  .step-dot.active { background: var(--accent); opacity: 0.5; }
+    .api-field {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-  /* MAIN */
-  main {
-    flex: 1;
-    padding: 24px 16px 40px;
-    max-width: 720px;
-    width: 100%;
-    margin: 0 auto;
-  }
+    .api-field label {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
 
-  /* STEP LABEL */
-  .step-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .step-label::before {
-    content: '';
-    display: block;
-    width: 16px;
-    height: 2px;
-    background: var(--accent);
-    border-radius: 1px;
-  }
+    .api-field input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+    }
 
-  /* QUESTION */
-  .question-card {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: 28px 24px 24px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: slideIn 0.25s ease-out;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .question-text {
-    font-size: 19px;
-    font-weight: 700;
-    line-height: 1.5;
-    margin-bottom: 6px;
-  }
-  .question-hint {
-    font-size: 13px;
-    color: var(--text-sub);
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
+    .api-field input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
 
-  /* OPTIONS */
-  .options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .option-btn {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg);
-    cursor: pointer;
-    transition: all var(--transition);
-    text-align: left;
-    width: 100%;
-    font-family: inherit;
-    font-size: 15px;
-    color: var(--text);
-    font-weight: 500;
-  }
-  .option-btn:hover {
-    border-color: var(--accent);
-    background: var(--accent-light);
-    transform: translateX(2px);
-  }
-  .option-btn.selected {
-    border-color: var(--accent);
-    background: var(--accent-light);
-    color: var(--accent);
-  }
-  .option-circle {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition);
-  }
-  .option-btn.selected .option-circle {
-    border-color: var(--accent);
-    background: var(--accent);
-  }
-  .option-btn.selected .option-circle::after {
-    content: '';
-    display: block;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: white;
-  }
-  .option-sub {
-    font-size: 12px;
-    color: var(--text-sub);
-    font-weight: 400;
-    margin-top: 2px;
-  }
-  .option-btn.selected .option-sub {
-    color: #B84D18;
-  }
+    .browser-note {
+      width: 100%;
+      font-size: 12px;
+      color: var(--danger);
+      background: #FDE8E6;
+      padding: 8px 12px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
 
-  /* SCORE PREVIEW (small badges shown during hearing) */
-  .score-preview {
-    display: flex;
-    gap: 8px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-  }
-  .score-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    opacity: 0.5;
-    transition: all var(--transition);
-  }
-  .score-badge.leading {
-    opacity: 1;
-  }
+    .browser-note[hidden] { display: none !important; }
 
-  /* NAVIGATION */
-  .nav-area {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-  }
-  .btn-back {
-    background: none;
-    border: 1.5px solid var(--border);
-    color: var(--text-sub);
-    padding: 10px 20px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    transition: all var(--transition);
-  }
-  .btn-back:hover { border-color: var(--text-sub); }
-  .btn-back:disabled { opacity: 0.3; cursor: default; }
-  .btn-next {
-    background: var(--accent);
-    border: none;
-    color: white;
-    padding: 12px 28px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-    transition: all var(--transition);
-    box-shadow: 0 4px 14px rgba(217,98,43,0.3);
-  }
-  .btn-next:hover { background: #C0551F; transform: translateY(-1px); }
-  .btn-next:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+    /* ----- Main ----- */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+    }
 
-  /* RESULT */
-  .result-screen { animation: slideIn 0.3s ease-out; }
+    .screen { display: none; animation: fadeIn 0.28s ease; }
+    .screen.active { display: block; }
 
-  .result-header {
-    text-align: center;
-    padding: 24px 0 16px;
-  }
-  .result-title {
-    font-size: 14px;
-    color: var(--text-sub);
-    margin-bottom: 8px;
-    letter-spacing: 0.05em;
-  }
-  .result-product {
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-  .result-tagline {
-    font-size: 14px;
-    color: var(--text-sub);
-  }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-  .product-card {
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    margin: 16px 0;
-    box-shadow: var(--shadow);
-  }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
 
-  .score-bar-container {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    margin-bottom: 16px;
-  }
-  .score-bar-title {
-    font-size: 13px;
-    color: var(--text-sub);
-    margin-bottom: 14px;
-    font-weight: 500;
-  }
-  .score-item {
-    margin-bottom: 12px;
-  }
-  .score-item-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 4px;
-    font-weight: 500;
-  }
-  .score-item-bar {
-    height: 8px;
-    background: var(--progress-bg);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .score-item-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+    h1.welcome-title {
+      font-size: clamp(22px, 5vw, 28px);
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.35;
+    }
 
-  /* CLOSING SCRIPT */
-  .closing-card {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    margin-bottom: 16px;
-  }
-  .closing-card h3 {
-    font-size: 14px;
-    color: var(--text-sub);
-    margin-bottom: 12px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .closing-card h3 .icon {
-    font-size: 16px;
-  }
-  .script-bubble {
-    background: var(--accent-light);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 8px 8px 0;
-    padding: 12px 16px;
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--text);
-    margin-bottom: 10px;
-  }
-  .script-bubble:last-child { margin-bottom: 0; }
+    .welcome-lead {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
 
-  .hearing-summary {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    margin-bottom: 16px;
-  }
-  .hearing-summary h3 {
-    font-size: 13px;
-    color: var(--text-sub);
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    margin-bottom: 12px;
-  }
-  .summary-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .summary-item {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 10px 12px;
-  }
-  .summary-item-label {
-    font-size: 11px;
-    color: var(--text-sub);
-    margin-bottom: 3px;
-  }
-  .summary-item-value {
-    font-size: 13px;
-    font-weight: 700;
-  }
+    .howto {
+      font-size: 15px;
+      line-height: 1.75;
+      margin-bottom: 24px;
+      padding-left: 1.2em;
+    }
 
-  .btn-restart {
-    width: 100%;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    color: var(--text);
-    padding: 14px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition);
-    margin-top: 8px;
-  }
-  .btn-restart:hover { border-color: var(--text-sub); }
+    .howto li { margin-bottom: 8px; }
 
-  /* WELCOME */
-  .welcome-screen {
-    text-align: center;
-    padding: 40px 0 20px;
-    animation: slideIn 0.3s ease-out;
-  }
-  .welcome-icon {
-    width: 72px; height: 72px;
-    background: var(--accent-light);
-    border-radius: 24px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 32px;
-  }
-  .welcome-title {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    line-height: 1.4;
-  }
-  .welcome-desc {
-    font-size: 14px;
-    color: var(--text-sub);
-    line-height: 1.7;
-    max-width: 360px;
-    margin: 0 auto 32px;
-  }
-  .welcome-tips {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    text-align: left;
-    margin-bottom: 24px;
-    border: 1px solid var(--border);
-  }
-  .welcome-tips h3 {
-    font-size: 13px;
-    color: var(--text-sub);
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    margin-bottom: 12px;
-  }
-  .tip-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 8px;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-  .tip-num {
-    width: 20px; height: 20px;
-    background: var(--accent);
-    color: white;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .btn-start {
-    width: 100%;
-    background: var(--accent);
-    border: none;
-    color: white;
-    padding: 16px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all var(--transition);
-    box-shadow: 0 6px 20px rgba(217,98,43,0.35);
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-start:hover { background: #C0551F; transform: translateY(-2px); }
-</style>
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 52px;
+      padding: 14px 28px;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: inherit;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      width: 100%;
+      touch-action: manipulation;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--border);
+      margin-top: 12px;
+    }
+
+    .btn-secondary:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+    /* Progress */
+    .progress-block {
+      margin-bottom: 20px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      height: 8px;
+      background: #EDE9E3;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.35s ease;
+    }
+
+    .phase-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    /* Question — min 24px per spec */
+    .question-display {
+      font-size: clamp(24px, 5vw, 30px);
+      font-weight: 700;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .memo-box {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      padding: 14px 16px;
+      background: var(--accent-soft);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .memo-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+    }
+
+    /* Mic */
+    .mic-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .mic-btn {
+      width: min(200px, 70vw);
+      height: min(200px, 70vw);
+      border-radius: 50%;
+      border: 4px solid var(--accent);
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .mic-btn svg { width: 44px; height: 44px; }
+
+    .mic-btn.recording {
+      background: var(--accent);
+      color: #fff;
+      animation: pulse 1.2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(217, 98, 43, 0.45); }
+      50% { box-shadow: 0 0 0 16px rgba(217, 98, 43, 0); }
+    }
+
+    .mic-hint {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    .transcript-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .transcript-box {
+      min-height: 100px;
+      padding: 16px;
+      background: #FAFAF8;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 17px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .transcript-box.empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .error-banner {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: #FDE8E6;
+      color: var(--danger);
+      border-radius: var(--radius);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .error-banner[hidden] { display: none !important; }
+
+    /* Analyzing */
+    .analyzing-card {
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .analyzing-text {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* Result */
+    .result-product {
+      font-size: clamp(22px, 4.5vw, 26px);
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .result-reason {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+
+    .closing-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .closing-body {
+      font-size: clamp(18px, 3.5vw, 22px);
+      font-weight: 500;
+      line-height: 1.65;
+      padding: 20px;
+      background: var(--accent-soft);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+    }
+
+    .scores-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .score-name {
+      width: 11em;
+      flex-shrink: 0;
+      line-height: 1.3;
+    }
+
+    .score-bar-bg {
+      flex: 1;
+      height: 10px;
+      background: #EDE9E3;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+
+    .score-val {
+      width: 2.5em;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (min-width: 600px) {
+      .btn { width: auto; min-width: 240px; }
+      .welcome-actions .btn { width: 100%; max-width: 360px; }
+    }
+  </style>
 </head>
 <body>
+  <header class="app-header">
+    <div class="header-row">
+      <span class="brand">ヒアリングナビ</span>
+      <div class="api-field">
+        <label for="apiKey">Claude APIキー</label>
+        <input type="password" id="apiKey" autocomplete="off" placeholder="sk-ant-api03-..." aria-describedby="apiHint">
+      </div>
+    </div>
+    <p id="apiHint" class="browser-note" hidden></p>
+  </header>
 
-<header>
-  <div class="logo">
-    <div class="logo-icon">🏠</div>
-    ヒアリングナビ
-  </div>
-  <div class="header-badge">株式会社市兵衛</div>
-</header>
+  <main>
+    <!-- ① Welcome -->
+    <section id="screenWelcome" class="screen active" aria-live="polite">
+      <div class="card">
+        <h1 class="welcome-title">お客様ヒアリングをはじめます</h1>
+        <p class="welcome-lead">画面上の質問をそのまま読み上げ、お客様のお話をマイクで録音してください。判断はAIが行います。</p>
+        <ol class="howto">
+          <li>上部に API キーを入力する（ブラウザに一時保存されます）</li>
+          <li>「ヒアリングをはじめる」を押す</li>
+          <li>表示された質問をお客様に読み上げる</li>
+          <li>お客様の返答を聞いたら、マイクを<strong>押している間だけ</strong>録音する</li>
+          <li>「次へ」で AI に送り、次の質問へ進む</li>
+        </ol>
+        <div id="speechWarning" class="browser-note" hidden></div>
+        <div class="welcome-actions">
+          <button type="button" class="btn btn-primary" id="btnStart">ヒアリングをはじめる</button>
+        </div>
+      </div>
+    </section>
 
-<div class="progress-area" id="progressArea" style="display:none">
-  <div class="progress-label">
-    <span id="progressStep">STEP 1 / 6</span>
-    <span id="progressPercent">0%</span>
-  </div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="progressFill" style="width:0%"></div>
-  </div>
-  <div class="step-dots" id="stepDots"></div>
-</div>
+    <!-- ② Hearing -->
+    <section id="screenHearing" class="screen" aria-live="polite">
+      <div class="progress-block">
+        <div class="progress-meta">
+          <span id="progressPhase">質問 1 / 目安 8</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="phase-label">スタッフ読み上げ用</p>
+        <p class="question-display" id="questionText">—</p>
+        <div class="memo-box" id="memoBox">
+          <div class="memo-label">スタッフ向けメモ（読み上げない）</div>
+          <p id="memoText"></p>
+        </div>
+        <div class="mic-wrap">
+          <button type="button" class="mic-btn" id="btnMic" aria-pressed="false" aria-label="マイク。押している間録音します">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+            <span id="micLabel">押して録音</span>
+          </button>
+          <p class="mic-hint">お客様の声が入るよう、マイクに向けて話してください。離すと認識が止まります。</p>
+        </div>
+        <p class="transcript-label">文字起こし</p>
+        <div class="transcript-box empty" id="transcriptBox" data-placeholder="ここに音声の文字起こしが表示されます">ここに音声の文字起こしが表示されます</div>
+        <div class="error-banner" id="hearingError" hidden></div>
+        <button type="button" class="btn btn-primary" id="btnNext" style="margin-top: 20px;">次へ</button>
+      </div>
+    </section>
 
-<main id="mainContent">
-</main>
+    <!-- ③ Analyzing -->
+    <section id="screenAnalyzing" class="screen" aria-live="assertive">
+      <div class="card analyzing-card">
+        <div class="spinner" role="status" aria-label="分析中"></div>
+        <p class="analyzing-text">AI が分析しています…</p>
+      </div>
+    </section>
 
-<script>
-const STEPS = [
-  {
-    id: "s1",
-    label: "STEP 1　家族構成・現状",
-    questions: [
-      {
-        id: "q1",
-        text: "今のお住まいは？",
-        hint: "現在の住居状況を確認します",
-        options: [
-          { text: "賃貸（アパート・マンション）", sub: "家賃を毎月支払い中", score: { candy: 2, chuko: 1 } },
-          { text: "持ち家（自分・配偶者名義）", sub: "すでに不動産をお持ち", score: { tatekae: 1 } },
-          { text: "実家・親の家", sub: "家族所有の家に居住", score: { candy: 1, tatekae: 1 } },
-          { text: "その他", sub: "社宅・寮など", score: { candy: 1 } }
-        ]
-      },
-      {
-        id: "q2",
-        text: "ご家族の人数は？",
-        hint: "必要な間取り・広さのご参考に",
-        options: [
-          { text: "おひとり", sub: "単身", score: { chuko: 1 } },
-          { text: "2人（夫婦のみ）", sub: "2人暮らし", score: { candy: 1, chuko: 1 } },
-          { text: "3〜4人", sub: "お子さんあり", score: { candy: 2 } },
-          { text: "5人以上", sub: "大家族", score: { candy: 2 } }
-        ]
-      },
-      {
-        id: "q3",
-        text: "現在の家賃（住居費）は？",
-        hint: "毎月のコスト感を把握します",
-        options: [
-          { text: "〜5万円", sub: "比較的安い賃料", score: { candy: 3 } },
-          { text: "5〜8万円", sub: "一般的な賃料帯", score: { candy: 2, chuko: 1 } },
-          { text: "8万円以上", sub: "それなりの賃料", score: { candy: 1 } },
-          { text: "なし（実家・持ち家）", sub: "住居費の支出がない", score: { tatekae: 1 } }
-        ]
-      }
-    ]
-  },
-  {
-    id: "s2",
-    label: "STEP 2　きっかけ・動機",
-    questions: [
-      {
-        id: "q4",
-        text: "住まいを考えたきっかけは？",
-        hint: "お客様の一番の動機を把握します",
-        options: [
-          { text: "家賃がもったいない・毎月捨て金", sub: "ローン支払いに切り替えたい", score: { candy: 3 } },
-          { text: "子供が生まれた・増えた", sub: "家族が増えて手狭に", score: { candy: 2 } },
-          { text: "結婚・同棲を機に", sub: "新生活のスタートとして", score: { candy: 2 } },
-          { text: "今の家が古くなった・設備が悪い", sub: "建て替え・リフォームを検討", score: { chuko: 2, tatekae: 2 } },
-          { text: "相続・親の土地をどうにかしたい", sub: "土地活用・建て替えを検討", score: { tatekae: 2, chintai: 3 } }
-        ]
-      },
-      {
-        id: "q5",
-        text: "新築・中古、どちらをお考えですか？",
-        hint: "商材の方向性を絞り込みます",
-        options: [
-          { text: "絶対に新築がいい", sub: "新築にこだわりあり", score: { candy: 3 } },
-          { text: "新築希望だが、予算次第", sub: "コストを重視している", score: { candy: 2, chuko: 1 } },
-          { text: "中古でもまったくOK", sub: "コスパ・立地優先", score: { chuko: 3 } },
-          { text: "どちらでも（まだ決めていない）", sub: "情報収集の段階", score: { candy: 1, chuko: 1 } }
-        ]
-      }
-    ]
-  },
-  {
-    id: "s3",
-    label: "STEP 3　予算・資金計画",
-    questions: [
-      {
-        id: "q6",
-        text: "月々のローン支払いの上限は？",
-        hint: "無理のない支払い金額を確認します",
-        options: [
-          { text: "〜6万円", sub: "できるだけ抑えたい", score: { candy: 3 } },
-          { text: "6〜8万円", sub: "現在の家賃と同水準", score: { candy: 3 } },
-          { text: "8〜10万円", sub: "少し余裕を持たせたい", score: { candy: 2, chuko: 1 } },
-          { text: "10万円以上", sub: "こだわりに投資できる", score: { chuko: 1 } }
-        ]
-      },
-      {
-        id: "q7",
-        text: "頭金はどのくらい用意できますか？",
-        hint: "資金計画のベースを把握します",
-        options: [
-          { text: "ほぼなし（フルローン希望）", sub: "頭金なしで検討中", score: { candy: 3 } },
-          { text: "100万円未満", sub: "少額は用意できる", score: { candy: 2 } },
-          { text: "100〜300万円", sub: "ある程度用意できる", score: { candy: 1, chuko: 1 } },
-          { text: "300万円以上", sub: "ある程度の頭金あり", score: { chuko: 1 } }
-        ]
-      },
-      {
-        id: "q8",
-        text: "世帯年収（合算）はどのくらいですか？",
-        hint: "借入可能額の目安を把握します",
-        options: [
-          { text: "〜350万円", sub: "おひとりまたは片方が主収入", score: { candy: 3 } },
-          { text: "350〜500万円", sub: "一般的な所得帯", score: { candy: 3 } },
-          { text: "500〜700万円", sub: "共働きなど", score: { candy: 1, chuko: 1 } },
-          { text: "700万円以上", sub: "収入に余裕あり", score: { chuko: 1 } }
-        ]
-      }
-    ]
-  },
-  {
-    id: "s4",
-    label: "STEP 4　土地・場所",
-    questions: [
-      {
-        id: "q9",
-        text: "土地はお持ちですか？",
-        hint: "土地の有無で提案内容が変わります",
-        options: [
-          { text: "自分・配偶者名義の土地がある", sub: "すでに建築地がある", score: { candy: 2, tatekae: 2, chintai: 2 } },
-          { text: "親・家族の土地を使えそう", sub: "家族所有の土地を活用", score: { candy: 1, tatekae: 1, chintai: 1 } },
-          { text: "土地なし・購入から始める", sub: "土地探しも必要", score: { candy: 1, chuko: 1 } }
-        ]
-      },
-      {
-        id: "q10",
-        text: "建てたい場所のご希望は？",
-        hint: "エリア優先度を確認します",
-        options: [
-          { text: "通勤・通学を最優先", sub: "アクセス重視", score: { chuko: 1 } },
-          { text: "学校区（小学校など）を重視", sub: "子育て環境を優先", score: { candy: 1 } },
-          { text: "実家・親の近くに住みたい", sub: "サポート・親孝行", score: { candy: 1 } },
-          { text: "特定のエリアがある", sub: "希望地域が決まっている", score: { candy: 1 } }
-        ]
-      }
-    ]
-  },
-  {
-    id: "s5",
-    label: "STEP 5　建物の希望",
-    questions: [
-      {
-        id: "q11",
-        text: "平屋・2階建て、どちらをご希望ですか？",
-        hint: "建物タイプの好みを確認します",
-        options: [
-          { text: "2階建てがいい", sub: "床面積を縦に確保したい", score: { candy: 2 } },
-          { text: "平屋がいい", sub: "バリアフリー・コンパクト生活", score: { tatekae: 3 } },
-          { text: "どちらでも", sub: "予算・プランによって", score: { candy: 1 } }
-        ]
-      },
-      {
-        id: "q12",
-        text: "こだわりで一番大切なことは？",
-        hint: "提案の方向性を絞り込みます",
-        options: [
-          { text: "とにかくコスパ重視・安く建てたい", sub: "価格が最優先", score: { candy: 4 } },
-          { text: "設備・キッチンにこだわりたい", sub: "住み心地を大切に", score: { candy: 1, chuko: 1 } },
-          { text: "デザイン・外観にこだわりたい", sub: "見た目を大切に", score: { candy: 1 } },
-          { text: "光熱費・省エネを重視", sub: "ランニングコスト優先", score: { candy: 1 } }
-        ]
-      }
-    ]
-  },
-  {
-    id: "s6",
-    label: "STEP 6　時期・状況",
-    questions: [
-      {
-        id: "q13",
-        text: "いつ頃までに入居を希望しますか？",
-        hint: "ご検討のスケジュールを把握します",
-        options: [
-          { text: "できるだけ早く（3ヶ月以内）", sub: "急ぎで動きたい", score: { candy: 2 }, urgent: true },
-          { text: "半年以内が目標", sub: "今年中には入居したい", score: { candy: 1 } },
-          { text: "1年以内", sub: "じっくり検討しながら", score: {} },
-          { text: "まだ未定・情報収集中", sub: "いつでも相談できる", score: {} }
-        ]
-      },
-      {
-        id: "q14",
-        text: "他社・他ブランドも検討していますか？",
-        hint: "競合状況を把握してご提案を最適化",
-        options: [
-          { text: "まだここだけ", sub: "比較検討はしていない", score: { candy: 1 } },
-          { text: "大手ハウスメーカーも見ている", sub: "ハウスメーカーと比較中", score: {} },
-          { text: "地元の工務店も見ている", sub: "工務店と比較中", score: { candy: 1 } },
-          { text: "複数社を比較中", sub: "しっかり比較して決めたい", score: {} }
-        ]
-      }
-    ]
-  }
-];
+    <!-- ④ Result -->
+    <section id="screenResult" class="screen" aria-live="polite">
+      <div class="card">
+        <p class="phase-label">推奨商材</p>
+        <p class="result-product" id="resultProduct">—</p>
+        <p class="result-reason" id="resultReason"></p>
+        <p class="closing-label">クロージングトーク（読み上げ）</p>
+        <div class="closing-body" id="resultClosing"></div>
+        <p class="scores-title">商材スコア</p>
+        <div id="scoresContainer"></div>
+        <button type="button" class="btn btn-primary" id="btnRestart">最初からやり直す</button>
+      </div>
+    </section>
+  </main>
 
-const PRODUCTS = {
-  candy:   { name: "キャンディハウス",   tagline: "ローコスト新築住宅", color: "#D9622B", bgColor: "#FBF0EB", icon: "🏡" },
-  tatekae: { name: "平屋マーケット",     tagline: "平屋・建て替え専門", color: "#2B7BD9", bgColor: "#EBF3FB", icon: "🏠" },
-  chuko:   { name: "イオンハウジング藤井寺", tagline: "中古＋リフォーム",  color: "#2BAB5A", bgColor: "#EBF8F0", icon: "🔑" },
-  chintai: { name: "戸建賃貸",           tagline: "土地活用・相続対策",  color: "#8B4DB8", bgColor: "#F5EDFB", icon: "🏢" }
-};
+  <script>
+(function () {
+  'use strict';
 
-const CLOSING_SCRIPTS = {
-  candy: [
-    "「毎月○万円の家賃を払い続けるのは、もったいないと思いませんか？キャンディハウスなら、同じ支払い額で新築の『自分の家』に住めます。」",
-    "「頭金がなくても、フルローンで新築が建てられます。今の家賃より安いケースも多いんですよ。」",
-    "「キャンディハウスは、必要な部分に絞って価格を下げた商品です。品質はそのままで、とにかくお手頃に新築を実現できます。一度モデルハウスをご覧になりませんか？」"
-  ],
-  tatekae: [
-    "「今の家が古くなっていることへのご不安、よくわかります。平屋マーケットなら、同じ敷地で新しい平屋に建て替えることができます。」",
-    "「お一人やご夫婦お二人での暮らしには、平屋がとても機能的です。バリアフリーで将来も安心して暮らせます。」"
-  ],
-  chuko: [
-    "「新築にこだわりたいお気持ちはわかりますが、予算的に難しい場合、中古＋リフォームという選択肢があります。」",
-    "「中古物件にリフォームを加えれば、新築同様の内装・設備にできます。立地や価格は中古のメリットをそのままに、住み心地は新築以上になることもあります。」"
-  ],
-  chintai: [
-    "「お持ちの土地を活用して、戸建賃貸にするという選択肢はご存知ですか？毎月の家賃収入で、安定したキャッシュフローをつくることができます。」",
-    "「相続対策としても、土地に戸建を建てると評価額を大幅に下げることができます。一度、収支シミュレーションをしてみましょう。」"
-  ]
-};
+  const SYSTEM_PROMPT = `あなたは不動産会社「株式会社市兵衛」のAIヒアリングアシスタントです。
 
-function safeScrollTop() {
-  try { window.scrollTo(0, 0); } catch(e) {}
-  try { document.documentElement.scrollTop = 0; } catch(e) {}
+【あなたの役割】
+パートスタッフがお客様にあなたの質問を読み上げます。
+お客様の回答をもとに、以下の4商材のどれが最適かを判断してください。
+
+【4つの商材】
+1. キャンディハウス：ローコスト新築住宅（所得が高くない・新築希望）
+2. 平屋マーケット：平屋の建て替え（高齢者・古い家・子供が独立済み）
+3. イオンハウジング藤井寺：中古＋リフォーム（新築が買えない・中古でもOK）
+4. 戸建賃貸：土地活用・相続対策（土地持ち・相続・投資に興味あり）
+
+【ヒアリングの進め方】
+- 1回の返答に対して1つの質問を返す
+- 自然な会話になるよう、お客様の言葉に共感してから次の質問をする
+- 失礼にならない丁寧な言葉遣いで
+- 質問は5〜8回程度で商材を判定できるよう効率よく進める
+- 必ず確認すること：家族構成・現在の住まい・予算感・土地の有無・きっかけ・時期
+
+【出力フォーマット】
+通常のヒアリング中は以下のJSON形式で返答すること：
+{
+  "type": "question",
+  "question": "スタッフが読み上げる質問文",
+  "memo": "スタッフ向けの補足メモ（表示はするが読み上げない）"
 }
 
-// State
-let currentScreen = "welcome"; // welcome, hearing, result
-let currentStepIdx = 0;
-let currentQIdx = 0;
-let answers = {};
-let scores = { candy: 0, tatekae: 0, chuko: 0, chintai: 0 };
-let allQuestions = [];
-
-// Flatten all questions
-STEPS.forEach((step, si) => {
-  step.questions.forEach((q, qi) => {
-    allQuestions.push({ ...q, stepIdx: si, stepLabel: step.label });
-  });
-});
-
-let totalQuestions = allQuestions.length;
-let currentQFlat = 0; // flat index
-
-function init() {
-  render();
-}
-
-function render() {
-  const main = document.getElementById('mainContent');
-  const progressArea = document.getElementById('progressArea');
-
-  if (currentScreen === "welcome") {
-    progressArea.style.display = "none";
-    main.innerHTML = renderWelcome();
-  } else if (currentScreen === "hearing") {
-    progressArea.style.display = "block";
-    updateProgress();
-    const q = allQuestions[currentQFlat];
-    main.innerHTML = renderQuestion(q);
-  } else if (currentScreen === "result") {
-    progressArea.style.display = "none";
-    main.innerHTML = renderResult();
-    setTimeout(() => animateBars(), 100);
+商材が判定できたら以下のJSON形式で返答すること：
+{
+  "type": "result",
+  "product": "商材名",
+  "reason": "判定理由（スタッフ向け）",
+  "closing": "クロージングトーク全文（スタッフが読み上げる）",
+  "scores": {
+    "キャンディハウス": 数値,
+    "平屋マーケット": 数値,
+    "イオンハウジング藤井寺": 数値,
+    "戸建賃貸": 数値
   }
 }
 
-function renderWelcome() {
-  return `
-  <div class="welcome-screen">
-    <div class="welcome-icon">🏘️</div>
-    <div class="welcome-title">ヒアリングナビへようこそ</div>
-    <div class="welcome-desc">お客様の状況をヒアリングして、最適な商材と<br>クロージングトークをご提案します</div>
-    <div class="welcome-tips">
-      <h3>使い方のポイント</h3>
-      <div class="tip-item">
-        <div class="tip-num">1</div>
-        <div>お客様に質問を読み上げ、当てはまる回答を選んでタップしてください</div>
-      </div>
-      <div class="tip-item">
-        <div class="tip-num">2</div>
-        <div>全14問のヒアリング後、商材が自動診断されます</div>
-      </div>
-      <div class="tip-item">
-        <div class="tip-num">3</div>
-        <div>クロージングトークスクリプトが自動表示されます</div>
-      </div>
-    </div>
-    <button class="btn-start" onclick="startHearing()">
-      ヒアリングをはじめる ▶
-    </button>
-  </div>`;
-}
+必ずJSONのみを返すこと。前置きや説明は不要。`;
 
-function renderQuestion(q) {
-  const selectedVal = answers[q.id];
-  const stepInfo = `STEP ${q.stepIdx + 1}　${STEPS[q.stepIdx].label.replace(/STEP \d\s*/, '')}`;
+  const API_URL = 'https://api.anthropic.com/v1/messages';
+  const MODEL = 'claude-sonnet-4-20250514';
+  const MAX_PHASE = 8;
+  const STORAGE_KEY = 'hearing-navi-anthropic-key';
 
-  let optionsHtml = q.options.map((opt, i) => `
-    <button class="option-btn ${selectedVal === i ? 'selected' : ''}"
-      onclick="selectOption(${i})">
-      <div class="option-circle"></div>
-      <div>
-        <div>${opt.text}</div>
-        ${opt.sub ? `<div class="option-sub">${opt.sub}</div>` : ''}
-      </div>
-    </button>
-  `).join('');
+  const el = {
+    apiKey: document.getElementById('apiKey'),
+    apiHint: document.getElementById('apiHint'),
+    speechWarning: document.getElementById('speechWarning'),
+    screenWelcome: document.getElementById('screenWelcome'),
+    screenHearing: document.getElementById('screenHearing'),
+    screenAnalyzing: document.getElementById('screenAnalyzing'),
+    screenResult: document.getElementById('screenResult'),
+    btnStart: document.getElementById('btnStart'),
+    btnMic: document.getElementById('btnMic'),
+    micLabel: document.getElementById('micLabel'),
+    transcriptBox: document.getElementById('transcriptBox'),
+    btnNext: document.getElementById('btnNext'),
+    hearingError: document.getElementById('hearingError'),
+    questionText: document.getElementById('questionText'),
+    memoText: document.getElementById('memoText'),
+    memoBox: document.getElementById('memoBox'),
+    progressPhase: document.getElementById('progressPhase'),
+    progressPct: document.getElementById('progressPct'),
+    progressFill: document.getElementById('progressFill'),
+    resultProduct: document.getElementById('resultProduct'),
+    resultReason: document.getElementById('resultReason'),
+    resultClosing: document.getElementById('resultClosing'),
+    scoresContainer: document.getElementById('scoresContainer'),
+    btnRestart: document.getElementById('btnRestart')
+  };
 
-  const isFirst = currentQFlat === 0;
-  const isLast = currentQFlat === totalQuestions - 1;
-  const hasAnswer = selectedVal !== undefined;
+  let conversationHistory = [];
+  let questionIndex = 0;
+  let transcript = '';
+  let recognition = null;
+  let recogLang = 'ja-JP';
 
-  return `
-  <div class="question-card">
-    <div class="step-label">${stepInfo}</div>
-    <div class="question-text">${q.text}</div>
-    ${q.hint ? `<div class="question-hint">${q.hint}</div>` : ''}
-    <div class="options">${optionsHtml}</div>
-  </div>
-  <div class="nav-area">
-    <button class="btn-back" onclick="goBack()" ${isFirst ? 'disabled' : ''}>
-      ← 戻る
-    </button>
-    <button class="btn-next" onclick="goNext()" ${!hasAnswer ? 'disabled' : ''}>
-      ${isLast ? '診断する ✓' : '次へ →'}
-    </button>
-  </div>`;
-}
+  function getSpeechRecognition() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    return SR ? new SR() : null;
+  }
 
-function renderResult() {
-  const topProduct = getTopProduct();
-  const product = PRODUCTS[topProduct];
-  const scripts = CLOSING_SCRIPTS[topProduct] || [];
+  function speechSupported() {
+    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  }
 
-  // Build score bars
-  const maxScore = Math.max(...Object.values(scores), 1);
-  const barHtml = Object.entries(PRODUCTS).map(([key, p]) => {
-    const pct = Math.round((scores[key] / maxScore) * 100);
-    return `
-    <div class="score-item">
-      <div class="score-item-label">
-        <span>${p.name}</span>
-        <span style="color:${p.color}">${scores[key]}pt</span>
-      </div>
-      <div class="score-item-bar">
-        <div class="score-item-fill" id="bar-${key}" style="width:0%;background:${p.color}" data-target="${pct}"></div>
-      </div>
-    </div>`;
-  }).join('');
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function (s) {
+      s.classList.toggle('active', s.id === id);
+    });
+  }
 
-  // Build summary
-  const summaryItems = [
-    { label: "住まいの状況", qid: "q1" },
-    { label: "家族構成", qid: "q2" },
-    { label: "きっかけ", qid: "q4" },
-    { label: "月々の予算", qid: "q6" },
-    { label: "土地", qid: "q9" },
-    { label: "入居希望時期", qid: "q13" }
-  ].map(item => {
-    const q = allQuestions.find(q => q.id === item.qid);
-    const aIdx = answers[item.qid];
-    const aText = (q && aIdx !== undefined) ? q.options[aIdx].text : "未回答";
-    return `
-    <div class="summary-item">
-      <div class="summary-item-label">${item.label}</div>
-      <div class="summary-item-value">${aText}</div>
-    </div>`;
-  }).join('');
+  function setProgress() {
+    var pct = Math.min(100, Math.round((questionIndex / MAX_PHASE) * 100));
+    el.progressFill.style.width = pct + '%';
+    el.progressPct.textContent = pct + '%';
+    el.progressPhase.textContent = '質問 ' + questionIndex + ' / 目安 ' + MAX_PHASE;
+  }
 
-  const scriptHtml = scripts.map(s => `<div class="script-bubble">${s}</div>`).join('');
+  function parseAssistantJson(text) {
+    var raw = (text || '').trim();
+    var fence = raw.match(/^```(?:json)?\s*([\s\S]*?)```$/i);
+    if (fence) raw = fence[1].trim();
+    return JSON.parse(raw);
+  }
 
-  return `
-  <div class="result-screen">
-    <div class="result-header">
-      <div class="result-title">🎯 診断結果</div>
-      <div class="result-product" style="color:${product.color}">${product.icon} ${product.name}</div>
-      <div class="result-tagline">${product.tagline}</div>
-    </div>
+  function getApiKey() {
+    return (el.apiKey.value || '').trim();
+  }
 
-    <div class="score-bar-container">
-      <div class="score-bar-title">商材スコア（高いほど適合度が高い）</div>
-      ${barHtml}
-    </div>
-
-    <div class="closing-card">
-      <h3><span class="icon">💬</span>クロージングトークスクリプト</h3>
-      ${scriptHtml}
-    </div>
-
-    <div class="hearing-summary">
-      <h3>ヒアリング内容サマリー</h3>
-      <div class="summary-grid">${summaryItems}</div>
-    </div>
-
-    <button class="btn-restart" onclick="restart()">🔄 最初からやり直す</button>
-  </div>`;
-}
-
-function animateBars() {
-  document.querySelectorAll('.score-item-fill').forEach(bar => {
-    const target = bar.getAttribute('data-target');
-    bar.style.width = target + '%';
+  el.apiKey.value = sessionStorage.getItem(STORAGE_KEY) || '';
+  el.apiKey.addEventListener('change', function () {
+    sessionStorage.setItem(STORAGE_KEY, getApiKey());
   });
-}
+  el.apiKey.addEventListener('blur', function () {
+    sessionStorage.setItem(STORAGE_KEY, getApiKey());
+  });
 
-function getTopProduct() {
-  return Object.entries(scores).reduce((a, b) => b[1] > a[1] ? b : a)[0];
-}
+  if (!speechSupported()) {
+    el.speechWarning.hidden = false;
+    el.speechWarning.textContent =
+      'このブラウザでは音声認識（Web Speech API）が使えません。文字起こしには Google Chrome のご利用を推奨します。Safari では非対応です。';
+  }
 
-function updateProgress() {
-  const pct = Math.round((currentQFlat / totalQuestions) * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  const q = allQuestions[currentQFlat];
-  document.getElementById('progressStep').textContent = `STEP ${q.stepIdx + 1} / 6　Q${currentQFlat + 1} / ${totalQuestions}`;
-  document.getElementById('progressPercent').textContent = pct + '%';
+  function setupRecognition() {
+    recognition = getSpeechRecognition();
+    if (!recognition) return;
 
-  // Step dots
-  const dotsEl = document.getElementById('stepDots');
-  dotsEl.innerHTML = STEPS.map((_, i) => {
-    let cls = '';
-    if (i < q.stepIdx) cls = 'done';
-    else if (i === q.stepIdx) cls = 'active';
-    return `<div class="step-dot ${cls}"></div>`;
-  }).join('');
-}
+    recognition.lang = recogLang;
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
 
-function startHearing() {
-  currentScreen = "hearing";
-  currentQFlat = 0;
-  answers = {};
-  scores = { candy: 0, tatekae: 0, chuko: 0, chintai: 0 };
-  render();
-}
+    recognition.onresult = function (ev) {
+      var finalText = '';
+      var interim = '';
+      for (var i = ev.resultIndex; i < ev.results.length; i++) {
+        var r = ev.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      if (finalText) {
+        transcript = (transcript ? transcript + ' ' : '') + finalText.trim();
+      }
+      var display = transcript + (interim ? (transcript ? ' ' : '') + interim : '');
+      el.transcriptBox.textContent = display || el.transcriptBox.dataset.placeholder;
+      el.transcriptBox.classList.toggle('empty', !display);
+    };
 
-function restart() {
-  currentScreen = "welcome";
-  currentQFlat = 0;
-  answers = {};
-  scores = { candy: 0, tatekae: 0, chuko: 0, chintai: 0 };
-  render();
-  safeScrollTop();
-}
+    recognition.onerror = function (ev) {
+      if (ev.error === 'aborted' || ev.error === 'no-speech') return;
+      el.hearingError.hidden = false;
+      el.hearingError.textContent =
+        ev.error === 'not-allowed'
+          ? 'マイクの使用が許可されていません。ブラウザの設定を確認してください。'
+          : '音声認識でエラーが発生しました（' + ev.error + '）。もう一度試してください。';
+    };
 
-function selectOption(optIdx) {
-  const q = allQuestions[currentQFlat];
-  const prevIdx = answers[q.id];
+    recognition.onend = function () {
+      el.btnMic.classList.remove('recording');
+      el.btnMic.setAttribute('aria-pressed', 'false');
+      el.micLabel.textContent = '押して録音';
+    };
+  }
 
-  // Subtract previous score if re-selecting
-  if (prevIdx !== undefined) {
-    const prevOpt = q.options[prevIdx];
-    if (prevOpt && prevOpt.score) {
-      Object.entries(prevOpt.score).forEach(([k, v]) => { scores[k] = (scores[k] || 0) - v; });
+  setupRecognition();
+
+  function startRecog() {
+    if (!recognition) {
+      el.hearingError.hidden = false;
+      el.hearingError.textContent =
+        '音声認識が利用できません。Chrome で開き、マイク権限を許可してください。';
+      return;
+    }
+    el.hearingError.hidden = true;
+    try {
+      recognition.stop();
+    } catch (e) { /* noop */ }
+    try {
+      recognition.start();
+      el.btnMic.classList.add('recording');
+      el.btnMic.setAttribute('aria-pressed', 'true');
+      el.micLabel.textContent = '録音中…';
+    } catch (e) {
+      el.hearingError.hidden = false;
+      el.hearingError.textContent = '録音を開始できませんでした。もう一度試してください。';
     }
   }
 
-  // Set new answer and add new score
-  answers[q.id] = optIdx;
-  const opt = q.options[optIdx];
-  if (opt && opt.score) {
-    Object.entries(opt.score).forEach(([k, v]) => { scores[k] = (scores[k] || 0) + v; });
+  function stopRecog() {
+    if (!recognition) return;
+    try {
+      recognition.stop();
+    } catch (e) { /* noop */ }
   }
 
-  render();
-}
+  function bindPushToTalk(btn) {
+    var active = false;
 
-function goNext() {
-  if (answers[allQuestions[currentQFlat].id] === undefined) return;
-  if (currentQFlat < totalQuestions - 1) {
-    currentQFlat++;
-    render();
-    safeScrollTop();
-  } else {
-    currentScreen = "result";
-    render();
-    safeScrollTop();
+    function down(ev) {
+      if (ev.type === 'mousedown' && ev.button !== 0) return;
+      ev.preventDefault();
+      active = true;
+      startRecog();
+    }
+
+    function up(ev) {
+      if (!active) return;
+      ev.preventDefault();
+      active = false;
+      stopRecog();
+    }
+
+    btn.addEventListener('mousedown', down);
+    btn.addEventListener('mouseup', up);
+    btn.addEventListener('mouseleave', up);
+    btn.addEventListener('touchstart', down, { passive: false });
+    btn.addEventListener('touchend', up, { passive: false });
+    btn.addEventListener('touchcancel', up, { passive: false });
   }
-}
 
-function goBack() {
-  if (currentQFlat > 0) {
-    currentQFlat--;
-    render();
-    safeScrollTop();
+  bindPushToTalk(el.btnMic);
+
+  async function callClaude() {
+    var key = getApiKey();
+    if (!key) {
+      throw new Error('APIキーを入力してください。');
+    }
+
+    var res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1500,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
+    });
+
+    if (!res.ok) {
+      var errBody = '';
+      try {
+        errBody = await res.text();
+      } catch (e) { /* noop */ }
+      throw new Error(errBody || 'APIエラー ' + res.status);
+    }
+
+    var data = await res.json();
+    var block = data.content && data.content[0];
+    if (!block || block.type !== 'text') {
+      throw new Error('想定外の応答形式です。もう一度試してください。');
+    }
+    return parseAssistantJson(block.text);
   }
-}
 
-init();
-</script>
+  function applyQuestion(obj) {
+    el.questionText.textContent = obj.question || '（質問を取得できませんでした）';
+    el.memoText.textContent = obj.memo || '—';
+    el.memoBox.style.display = obj.memo ? 'block' : 'none';
+  }
+
+  function applyResult(obj) {
+    el.resultProduct.textContent = obj.product || '—';
+    el.resultReason.textContent = obj.reason || '';
+    el.resultClosing.textContent = obj.closing || '';
+
+    el.scoresContainer.innerHTML = '';
+    var scores = obj.scores || {};
+    var names = ['キャンディハウス', '平屋マーケット', 'イオンハウジング藤井寺', '戸建賃貸'];
+    var max = 0;
+    names.forEach(function (n) {
+      var v = Number(scores[n]);
+      if (!isNaN(v) && v > max) max = v;
+    });
+    if (max <= 0) max = 100;
+
+    names.forEach(function (n) {
+      var v = Number(scores[n]);
+      if (isNaN(v)) v = 0;
+      var pct = Math.min(100, Math.round((v / max) * 100));
+      var row = document.createElement('div');
+      row.className = 'score-row';
+      row.innerHTML =
+        '<span class="score-name">' +
+        escapeHtml(n) +
+        '</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:0%"></div></div><span class="score-val">' +
+        v +
+        '</span>';
+      el.scoresContainer.appendChild(row);
+      requestAnimationFrame(function () {
+        row.querySelector('.score-bar-fill').style.width = pct + '%';
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function resetHearingUi() {
+    transcript = '';
+    el.transcriptBox.textContent = el.transcriptBox.dataset.placeholder;
+    el.transcriptBox.classList.add('empty');
+    el.hearingError.hidden = true;
+  }
+
+  el.btnStart.addEventListener('click', async function () {
+    if (!getApiKey()) {
+      el.apiHint.hidden = false;
+      el.apiHint.textContent = 'Claude API キーを入力してから開始してください。';
+      el.apiKey.focus();
+      return;
+    }
+    el.apiHint.hidden = true;
+    sessionStorage.setItem(STORAGE_KEY, getApiKey());
+
+    conversationHistory = [];
+    questionIndex = 1;
+    resetHearingUi();
+
+    conversationHistory.push({
+      role: 'user',
+      content:
+        'ヒアリングを開始します。これからスタッフが私の質問をお客様に読み上げ、お客様の回答を文字起こしで送ります。まず最初の質問をJSONで返してください。'
+    });
+
+    showScreen('screenAnalyzing');
+    try {
+      var parsed = await callClaude();
+      if (parsed.type !== 'question') {
+        if (parsed.type === 'result') {
+          questionIndex = MAX_PHASE;
+          applyResult(parsed);
+          showScreen('screenResult');
+          return;
+        }
+        throw new Error('最初の応答が質問形式ではありません。もう一度試してください。');
+      }
+      conversationHistory.push({
+        role: 'assistant',
+        content: JSON.stringify(parsed)
+      });
+      setProgress();
+      applyQuestion(parsed);
+      showScreen('screenHearing');
+    } catch (err) {
+      conversationHistory = [];
+      showScreen('screenWelcome');
+      el.apiHint.hidden = false;
+      el.apiHint.textContent =
+        '通信エラー: ' + (err.message || '不明') + ' — もう一度試してください。（ブラウザから直接 API を呼ぶ場合は CORS の制限がある環境では失敗することがあります）';
+    }
+  });
+
+  el.btnNext.addEventListener('click', async function () {
+    var text = transcript.trim();
+    if (!text) {
+      el.hearingError.hidden = false;
+      el.hearingError.textContent = 'お客様の返答を録音するか、音声認識結果がある状態で次へ進んでください。';
+      return;
+    }
+
+    el.hearingError.hidden = true;
+    conversationHistory.push({ role: 'user', content: text });
+    resetHearingUi();
+    showScreen('screenAnalyzing');
+
+    try {
+      var parsed = await callClaude();
+      conversationHistory.push({
+        role: 'assistant',
+        content: typeof parsed === 'object' ? JSON.stringify(parsed) : String(parsed)
+      });
+
+      if (parsed.type === 'result') {
+        questionIndex = MAX_PHASE;
+        setProgress();
+        applyResult(parsed);
+        showScreen('screenResult');
+        return;
+      }
+
+      if (parsed.type !== 'question') {
+        throw new Error('AIの応答形式が正しくありません。もう一度試してください。');
+      }
+
+      questionIndex++;
+      setProgress();
+      applyQuestion(parsed);
+      showScreen('screenHearing');
+    } catch (err) {
+      conversationHistory.pop();
+      showScreen('screenHearing');
+      el.hearingError.hidden = false;
+      el.hearingError.textContent =
+        '通信エラー: もう一度試してください。 ' + (err.message || '');
+    }
+  });
+
+  el.btnRestart.addEventListener('click', function () {
+    conversationHistory = [];
+    questionIndex = 0;
+    resetHearingUi();
+    setProgress();
+    showScreen('screenWelcome');
+  });
+
+  setProgress();
+})();
+  </script>
 </body>
 </html>
