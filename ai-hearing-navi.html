@@ -645,10 +645,13 @@
 
   <div class="input-bar">
     <div class="input-bar-inner">
-      <textarea id="userInput" rows="1" placeholder="お客様の発言を入力（Enterで送信）"></textarea>
-      <button type="button" class="send-btn" id="btnSend" aria-label="送信">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
+      <textarea id="userInput" rows="1" placeholder="お客様の発言を入力（Shift+Enterで送信）"></textarea>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <button type="button" class="send-btn" id="btnSend" aria-label="送信">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+        <span style="font-size:10px;color:var(--muted);white-space:nowrap;">Shift+Enter</span>
+      </div>
     </div>
   </div>
 </div>
@@ -1064,11 +1067,8 @@
 
   el.btnSend.addEventListener('click', handleSend);
 
-  var isComposing = false;
-  el.userInput.addEventListener('compositionstart', function () { isComposing = true; });
-  el.userInput.addEventListener('compositionend', function () { isComposing = false; });
   el.userInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
+    if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
