@@ -355,6 +355,31 @@
   }
   .restart-link:hover { color: var(--accent); }
 
+  /* ===== Undo button ===== */
+  .undo-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .undo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .undo-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .undo-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .undo-btn:disabled:hover { background: var(--surface); color: var(--muted); border-color: var(--border); }
+
   /* ===== Survey Screen ===== */
   .survey-screen {
     padding: 0;
@@ -637,6 +662,19 @@
     'キャンディハウス：超ローコスト完全注文住宅。大阪近畿特化。建物1500万円前後。' +
     '1800万円の品質を1500万円で提供。ターゲット：年収300〜500万の30〜40代ファミリー。\n\n' +
     'フロー：STEP1 フロントトーク→STEP2 円トーク→STEP3 進め方トーク→STEP4 テストクロージング→STEP5 阻害要因対応（競合/借金/家族/時期）→パートナー申込\n\n' +
+    '【セリフのトーン（厳守）】\n' +
+    '- 敬語は使うが堅苦しくしない。関西のハウスメーカースタッフが自然に話す感じ。\n' +
+    '- 一文は短くテンポよく。長い文は2つに分ける。\n' +
+    '- 「ございます」は使わない。\n' +
+    '- 「いらっしゃいますか？」→「ありますか？」に言い換える。\n' +
+    '- 「お考えですか？」→「どう思ってます？」に言い換える。\n' +
+    '- 語尾は「〜ですか？」「〜ですね」「〜んですか？」を中心に。\n' +
+    '- 例：× 「本日はキャンディハウスへご来場いただき、ありがとうございます」\n' +
+    '       ○ 「今日は来てくれてありがとうございます！」\n' +
+    '- 例：× 「どういったご不満がいらっしゃいますか？」\n' +
+    '       ○ 「今のアパート、何か不便なこととかありますか？」\n' +
+    '- 例：× 「新しいお家では、どんなお部屋を作ってあげたいとお考えですか？」\n' +
+    '       ○ 「新しい家やったら、どんな部屋がほしいですか？」\n\n' +
     '出力は必ずこの形式のみ：\n' +
     'PHASE: （ステップ名）\n' +
     'NAV: （状況説明2〜3文）\n' +
@@ -661,13 +699,16 @@
     phaseLabel: document.getElementById('phaseLabel'),
     navBody: document.getElementById('navBody'),
     userInput: document.getElementById('userInput'),
-    btnSend: document.getElementById('btnSend')
+    btnSend: document.getElementById('btnSend'),
+    btnUndo: null
   };
 
   var conversationHistory = [];
   var sending = false;
   var currentCustomer = '';
   var activeSystemPrompt = SYSTEM_PROMPT;
+  var composing = false;
+  var turnGroups = [];
 
   // --- API Key persistence ---
   el.apiKey.value = localStorage.getItem(LS_KEY) || '';
@@ -726,7 +767,9 @@
   }
 
   // --- Render cards ---
-  function renderAiTurn(parsed) {
+  function renderAiTurn(parsed, prevPhase) {
+    var elements = [];
+
     if (parsed.phase) {
       el.phaseLabel.textContent = parsed.phase;
     }
@@ -739,6 +782,7 @@
         '<div class="card-body"></div>';
       navCard.querySelector('.card-body').textContent = parsed.nav;
       el.navBody.appendChild(navCard);
+      elements.push(navCard);
     }
 
     if (parsed.script) {
@@ -749,6 +793,7 @@
         '<div class="card-body"></div>';
       scriptCard.querySelector('.card-body').textContent = parsed.script;
       el.navBody.appendChild(scriptCard);
+      elements.push(scriptCard);
     }
 
     if (parsed.hint && parsed.hint !== 'なし') {
@@ -759,7 +804,15 @@
         '<div class="card-body"></div>';
       hintCard.querySelector('.card-body').textContent = parsed.hint;
       el.navBody.appendChild(hintCard);
+      elements.push(hintCard);
     }
+
+    turnGroups.push({
+      domElements: elements,
+      historyCount: 2,
+      prevPhase: prevPhase || '—'
+    });
+    updateUndoBtn();
 
     scrollToBottom();
   }
@@ -772,6 +825,29 @@
     body.textContent = text;
     div.appendChild(body);
     el.navBody.appendChild(div);
+
+    if (turnGroups.length > 0) {
+      turnGroups[turnGroups.length - 1].domElements.push(div);
+    }
+
+    scrollToBottom();
+  }
+
+  function updateUndoBtn() {
+    if (!el.btnUndo) return;
+    el.btnUndo.disabled = turnGroups.length <= 1 || sending;
+  }
+
+  function undoLastTurn() {
+    if (turnGroups.length <= 1 || sending) return;
+
+    var last = turnGroups.pop();
+    last.domElements.forEach(function (node) { node.remove(); });
+
+    conversationHistory.splice(-last.historyCount);
+    el.phaseLabel.textContent = last.prevPhase;
+
+    updateUndoBtn();
     scrollToBottom();
   }
 
@@ -843,7 +919,9 @@
     if (sending) return;
     sending = true;
     el.btnSend.disabled = true;
+    updateUndoBtn();
 
+    var prevPhase = el.phaseLabel.textContent;
     conversationHistory.push({ role: 'user', content: userText });
     var loader = renderLoading();
 
@@ -853,7 +931,7 @@
 
       conversationHistory.push({ role: 'assistant', content: raw });
       var parsed = parseResponse(raw);
-      renderAiTurn(parsed);
+      renderAiTurn(parsed, prevPhase);
     } catch (err) {
       removeLoading();
       conversationHistory.pop();
@@ -862,6 +940,7 @@
 
     sending = false;
     el.btnSend.disabled = false;
+    updateUndoBtn();
     el.userInput.focus();
   }
 
@@ -941,9 +1020,16 @@
     activeSystemPrompt = SYSTEM_PROMPT + surveyText;
 
     conversationHistory = [];
+    turnGroups = [];
     el.navBody.innerHTML = '';
     el.phaseLabel.textContent = '—';
-    showScreen('screenNav');
+
+    var undoBar = document.createElement('div');
+    undoBar.className = 'undo-bar';
+    undoBar.innerHTML = '<button type="button" class="undo-btn" id="btnUndo" disabled>← 一つ前に戻る</button>';
+    el.navBody.appendChild(undoBar);
+    el.btnUndo = document.getElementById('btnUndo');
+    el.btnUndo.addEventListener('click', undoLastTurn);
 
     var restartRow = document.createElement('div');
     restartRow.className = 'restart-row';
@@ -951,11 +1037,13 @@
     el.navBody.appendChild(restartRow);
     document.getElementById('btnRestart').addEventListener('click', function () {
       conversationHistory = [];
+      turnGroups = [];
       activeSystemPrompt = SYSTEM_PROMPT;
       el.customerName.value = '';
       showScreen('screenStart');
     });
 
+    showScreen('screenNav');
     sendMessage(currentCustomer + '様がご来場されました。アンケート情報を踏まえて、STEP1 フロントトークの最初のセリフを生成してください。');
   });
 
@@ -971,8 +1059,11 @@
 
   el.btnSend.addEventListener('click', handleSend);
 
+  el.userInput.addEventListener('compositionstart', function () { composing = true; });
+  el.userInput.addEventListener('compositionend', function () { composing = false; });
+
   el.userInput.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) {
+    if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing && !composing) {
       ev.preventDefault();
       handleSend();
     }
