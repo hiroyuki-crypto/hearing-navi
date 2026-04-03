@@ -713,7 +713,6 @@
   var sending = false;
   var currentCustomer = '';
   var activeSystemPrompt = SYSTEM_PROMPT;
-  var composing = false;
   var turnGroups = [];
 
   // --- API Key persistence ---
@@ -1065,20 +1064,12 @@
 
   el.btnSend.addEventListener('click', handleSend);
 
-  el.userInput.addEventListener('compositionstart', function () { composing = true; });
-  el.userInput.addEventListener('compositionend', function () { composing = false; });
-
-  el.userInput.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter' && !ev.shiftKey && (ev.isComposing || composing)) {
-      return;
-    }
-    if (ev.key === 'Enter' && !ev.shiftKey) {
-      ev.preventDefault();
-    }
-  });
-
-  el.userInput.addEventListener('keyup', function (ev) {
-    if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing && !composing) {
+  var isComposing = false;
+  el.userInput.addEventListener('compositionstart', function () { isComposing = true; });
+  el.userInput.addEventListener('compositionend', function () { isComposing = false; });
+  el.userInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
+      e.preventDefault();
       handleSend();
     }
   });
