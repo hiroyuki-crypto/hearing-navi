@@ -591,6 +591,7 @@
         <label><input type="radio" name="budget" value="2000万以下">2000万以下</label>
         <label><input type="radio" name="budget" value="2500万以下">2500万以下</label>
         <label><input type="radio" name="budget" value="3000万以下">3000万以下</label>
+        <label><input type="radio" name="budget" value="3500万以上">3500万以上</label>
         <label><input type="radio" name="budget" value="決まっていない">決まっていない</label>
       </div>
     </div>
@@ -662,6 +663,11 @@
     'キャンディハウス：超ローコスト完全注文住宅。大阪近畿特化。建物1500万円前後。' +
     '1800万円の品質を1500万円で提供。ターゲット：年収300〜500万の30〜40代ファミリー。\n\n' +
     'フロー：STEP1 フロントトーク→STEP2 円トーク→STEP3 進め方トーク→STEP4 テストクロージング→STEP5 阻害要因対応（競合/借金/家族/時期）→パートナー申込\n\n' +
+    '【アンケート情報の扱い】\n' +
+    '- アンケートの「同席者」は事前記入された家族構成であり、今日の来場者とは限らない。\n' +
+    '- 例：アンケートに「ご主人様・奥様」とあっても、実際はご主人様だけかもしれない。\n' +
+    '- そのため最初のセリフで必ず「今日はお一人で来られましたか？」等と実際の来場者を確認する。\n' +
+    '- アンケートの他の項目（住まい・家賃・予算・土地・時期など）も参考情報として活用し、会話の中で自然に確認・深掘りする。\n\n' +
     '【セリフのトーン（厳守）】\n' +
     '- 敬語は使うが堅苦しくしない。関西のハウスメーカースタッフが自然に話す感じ。\n' +
     '- 一文は短くテンポよく。長い文は2つに分ける。\n' +
@@ -1063,8 +1069,16 @@
   el.userInput.addEventListener('compositionend', function () { composing = false; });
 
   el.userInput.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing && !composing) {
+    if (ev.key === 'Enter' && !ev.shiftKey && (ev.isComposing || composing)) {
+      return;
+    }
+    if (ev.key === 'Enter' && !ev.shiftKey) {
       ev.preventDefault();
+    }
+  });
+
+  el.userInput.addEventListener('keyup', function (ev) {
+    if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing && !composing) {
       handleSend();
     }
   });
