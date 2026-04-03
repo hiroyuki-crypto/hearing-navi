@@ -1,776 +1,582 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>ヒアリングナビ｜株式会社市兵衛</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>キャンディハウス 営業ナビ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
-    :root {
-      --accent: #D9622B;
-      --accent-hover: #c25524;
-      --accent-soft: #FBF0EB;
-      --bg: #F7F4EF;
-      --surface: #FFFFFF;
-      --text: #1A1714;
-      --muted: #6B6460;
-      --border: #E5E0D8;
-      --danger: #B3261E;
-      --radius: 14px;
-      --radius-lg: 20px;
-      --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    }
+  :root {
+    --bg: #F7F4EF;
+    --surface: #FFFFFF;
+    --text: #1A1714;
+    --muted: #6B6460;
+    --border: #E5E0D8;
+    --accent: #E8743A;
+    --accent-hover: #D0652F;
+    --accent-soft: #FDF0E9;
+    --navy: #1C2B4A;
+    --navy-light: #4A6FA5;
+    --danger: #B3261E;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Noto Sans JP', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      -webkit-tap-highlight-color: transparent;
-    }
+  body {
+    font-family: 'Noto Sans JP', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-    /* ----- Header ----- */
-    .app-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
+  /* ===== API Key Bar ===== */
+  .api-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .api-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .api-bar label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .api-bar input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .api-bar input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .api-status {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .api-status.ok { color: #2e7d32; }
+  .api-status.ng { color: var(--danger); }
 
-    .header-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px 16px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
+  /* ===== Screens ===== */
+  .screen { display: none; }
+  .screen.active { display: flex; flex-direction: column; flex: 1; }
 
-    .brand {
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--accent);
-      white-space: nowrap;
-    }
+  /* ===== Start Screen ===== */
+  .start-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 32px 16px;
+    text-align: center;
+  }
+  .start-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 40px 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 420px;
+  }
+  .start-emoji { font-size: 48px; margin-bottom: 12px; }
+  .start-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .start-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .field-group { margin-bottom: 20px; text-align: left; }
+  .field-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+  .field-group input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: inherit;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .field-group input:focus { outline: none; border-color: var(--accent); }
 
-    .api-field {
-      flex: 1;
-      min-width: 200px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 52px;
+    padding: 14px 28px;
+    font-size: 17px;
+    font-weight: 700;
+    font-family: inherit;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.18s, transform 0.12s;
+    width: 100%;
+    touch-action: manipulation;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { background: var(--accent-hover); }
+  .btn-accent:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    .api-field label {
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
+  /* ===== Nav Screen ===== */
+  .nav-screen { padding: 0; }
 
-    .api-field input {
-      flex: 1;
-      min-width: 0;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 14px;
-      font-family: inherit;
-    }
+  .nav-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 41px;
+    z-index: 50;
+  }
+  .nav-brand {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-phase {
+    font-size: 13px;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 14px;
+    border-radius: 20px;
+  }
 
-    .api-field input:focus {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
+  .nav-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px 160px;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+  }
 
-    .browser-note {
-      width: 100%;
-      font-size: 12px;
-      color: var(--danger);
-      background: #FDE8E6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      line-height: 1.5;
-    }
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px 18px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+    animation: cardIn 0.22s ease;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .browser-note[hidden] { display: none !important; }
+  .card-nav {
+    border-left: 4px solid var(--navy-light);
+  }
+  .card-script {
+    border-left: 4px solid var(--accent);
+  }
+  .card-hint {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+  }
 
-    /* ----- Main ----- */
-    main {
-      flex: 1;
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px 16px 32px;
-    }
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-label.blue { color: var(--navy-light); }
+  .card-label.orange { color: var(--accent); }
 
-    .screen { display: none; animation: fadeIn 0.28s ease; }
-    .screen.active { display: block; }
+  .card-nav .card-body {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .card-script .card-body {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .card-hint .card-body {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+  .loading-card {
+    text-align: center;
+    padding: 28px;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .dot-pulse::after {
+    content: '';
+    animation: dots 1.2s steps(4, end) infinite;
+  }
+  @keyframes dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+  }
 
-    .card {
-      background: var(--surface);
-      border-radius: var(--radius-lg);
-      padding: 24px 20px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-    }
+  .error-msg {
+    background: #FDE8E6;
+    color: var(--danger);
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
 
-    h1.welcome-title {
-      font-size: clamp(22px, 5vw, 28px);
-      font-weight: 700;
-      margin-bottom: 12px;
-      line-height: 1.35;
-    }
+  /* ===== Input Bar (bottom fixed) ===== */
+  .input-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 60;
+  }
+  .input-bar-inner {
+    display: flex;
+    gap: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+    align-items: flex-end;
+  }
+  .input-bar textarea {
+    flex: 1;
+    resize: none;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: inherit;
+    line-height: 1.45;
+    min-height: 48px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .input-bar textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .input-bar textarea::placeholder { color: #B0AAA4; }
 
-    .welcome-lead {
-      font-size: 16px;
-      color: var(--muted);
-      line-height: 1.7;
-      margin-bottom: 20px;
-    }
+  .send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .send-btn:hover { background: var(--accent-hover); }
+  .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .send-btn svg { width: 22px; height: 22px; }
 
-    .howto {
-      font-size: 15px;
-      line-height: 1.75;
-      margin-bottom: 24px;
-      padding-left: 1.2em;
-    }
+  /* ===== History (user bubbles) ===== */
+  .user-bubble {
+    background: var(--navy);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: var(--radius) var(--radius) 4px var(--radius);
+    margin-bottom: 14px;
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 85%;
+    margin-left: auto;
+    animation: cardIn 0.2s ease;
+  }
+  .user-label {
+    font-size: 11px;
+    opacity: 0.65;
+    margin-bottom: 4px;
+  }
 
-    .howto li { margin-bottom: 8px; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 52px;
-      padding: 14px 28px;
-      font-size: 17px;
-      font-weight: 700;
-      font-family: inherit;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      width: 100%;
-      touch-action: manipulation;
-    }
-
-    .btn:active { transform: scale(0.98); }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-primary:hover { background: var(--accent-hover); }
-
-    .btn-primary:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn-secondary {
-      background: var(--surface);
-      color: var(--text);
-      border: 2px solid var(--border);
-      margin-top: 12px;
-    }
-
-    .btn-secondary:hover { background: var(--accent-soft); border-color: var(--accent); }
-
-    /* Progress */
-    .progress-block {
-      margin-bottom: 20px;
-    }
-
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .progress-track {
-      height: 8px;
-      background: #EDE9E3;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 4px;
-      width: 0%;
-      transition: width 0.35s ease;
-    }
-
-    .phase-label {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    /* Question — min 24px per spec */
-    .question-display {
-      font-size: clamp(24px, 5vw, 30px);
-      font-weight: 700;
-      line-height: 1.45;
-      margin-bottom: 16px;
-    }
-
-    .memo-box {
-      font-size: 15px;
-      color: var(--muted);
-      line-height: 1.65;
-      padding: 14px 16px;
-      background: var(--accent-soft);
-      border-radius: var(--radius);
-      margin-bottom: 24px;
-      border-left: 4px solid var(--accent);
-    }
-
-    .memo-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 6px;
-      letter-spacing: 0.06em;
-    }
-
-    /* Mic */
-    .mic-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .mic-btn {
-      width: min(200px, 70vw);
-      height: min(200px, 70vw);
-      border-radius: 50%;
-      border: 4px solid var(--accent);
-      background: var(--surface);
-      color: var(--accent);
-      font-size: 15px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: var(--shadow);
-      transition: background 0.2s, color 0.2s, transform 0.15s;
-      touch-action: manipulation;
-      user-select: none;
-    }
-
-    .mic-btn svg { width: 44px; height: 44px; }
-
-    .mic-btn.recording {
-      background: var(--accent);
-      color: #fff;
-      animation: pulse 1.2s ease infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(217, 98, 43, 0.45); }
-      50% { box-shadow: 0 0 0 16px rgba(217, 98, 43, 0); }
-    }
-
-    .mic-hint {
-      font-size: 14px;
-      color: var(--muted);
-      text-align: center;
-      max-width: 320px;
-      line-height: 1.5;
-    }
-
-    .transcript-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .transcript-box {
-      min-height: 100px;
-      padding: 16px;
-      background: #FAFAF8;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      font-size: 17px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .transcript-box.empty {
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    .error-banner {
-      margin-top: 12px;
-      padding: 12px 14px;
-      background: #FDE8E6;
-      color: var(--danger);
-      border-radius: var(--radius);
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .error-banner[hidden] { display: none !important; }
-
-    /* Analyzing */
-    .analyzing-card {
-      text-align: center;
-      padding: 48px 24px;
-    }
-
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      animation: spin 0.85s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .analyzing-text {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    /* Result */
-    .result-product {
-      font-size: clamp(22px, 4.5vw, 26px);
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-
-    .result-reason {
-      font-size: 15px;
-      color: var(--muted);
-      line-height: 1.65;
-      margin-bottom: 24px;
-    }
-
-    .closing-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.06em;
-      margin-bottom: 8px;
-    }
-
-    .closing-body {
-      font-size: clamp(18px, 3.5vw, 22px);
-      font-weight: 500;
-      line-height: 1.65;
-      padding: 20px;
-      background: var(--accent-soft);
-      border-radius: var(--radius);
-      margin-bottom: 24px;
-    }
-
-    .scores-title {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .score-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .score-name {
-      width: 11em;
-      flex-shrink: 0;
-      line-height: 1.3;
-    }
-
-    .score-bar-bg {
-      flex: 1;
-      height: 10px;
-      background: #EDE9E3;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .score-bar-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 5px;
-      transition: width 0.5s ease;
-    }
-
-    .score-val {
-      width: 2.5em;
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-
-    @media (min-width: 600px) {
-      .btn { width: auto; min-width: 240px; }
-      .welcome-actions .btn { width: 100%; max-width: 360px; }
-    }
-  </style>
+  .restart-row {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  .restart-link {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .restart-link:hover { color: var(--accent); }
+</style>
 </head>
 <body>
-  <header class="app-header">
-    <div class="header-row">
-      <span class="brand">ヒアリングナビ</span>
-      <div class="api-field">
-        <label for="apiKey">Claude APIキー</label>
-        <input type="password" id="apiKey" autocomplete="off" placeholder="sk-ant-api03-..." aria-describedby="apiHint">
-      </div>
+
+<!-- API Key Bar -->
+<div class="api-bar">
+  <div class="api-bar-inner">
+    <label for="apiKey">APIキー</label>
+    <input type="password" id="apiKey" autocomplete="off" placeholder="sk-ant-api03-...">
+    <span class="api-status" id="apiStatus"></span>
+  </div>
+</div>
+
+<!-- Start Screen -->
+<div id="screenStart" class="screen start-screen active">
+  <div class="start-card">
+    <div class="start-emoji">🍬</div>
+    <div class="start-title">キャンディハウス 営業ナビ</div>
+    <p class="start-sub">AIがトークの流れをリード。<br>表示されたセリフを読み上げるだけでOKです。</p>
+    <div class="field-group">
+      <label for="customerName">お客様の苗字</label>
+      <input type="text" id="customerName" placeholder="例：田中">
     </div>
-    <p id="apiHint" class="browser-note" hidden></p>
-  </header>
+    <button type="button" class="btn btn-accent" id="btnStart">スタート</button>
+  </div>
+</div>
 
-  <main>
-    <!-- ① Welcome -->
-    <section id="screenWelcome" class="screen active" aria-live="polite">
-      <div class="card">
-        <h1 class="welcome-title">お客様ヒアリングをはじめます</h1>
-        <p class="welcome-lead">画面上の質問をそのまま読み上げ、お客様のお話をマイクで録音してください。判断はAIが行います。</p>
-        <ol class="howto">
-          <li>上部に API キーを入力する（ブラウザに一時保存されます）</li>
-          <li>「ヒアリングをはじめる」を押す</li>
-          <li>表示された質問をお客様に読み上げる</li>
-          <li>お客様の返答を聞いたら、マイクを<strong>押している間だけ</strong>録音する</li>
-          <li>「次へ」で AI に送り、次の質問へ進む</li>
-        </ol>
-        <div id="speechWarning" class="browser-note" hidden></div>
-        <div class="welcome-actions">
-          <button type="button" class="btn btn-primary" id="btnStart">ヒアリングをはじめる</button>
-        </div>
-      </div>
-    </section>
+<!-- Nav Screen -->
+<div id="screenNav" class="screen nav-screen">
+  <div class="nav-header">
+    <span class="nav-brand">🍬 キャンディハウス</span>
+    <span class="nav-phase" id="phaseLabel">—</span>
+  </div>
+  <div class="nav-body" id="navBody"></div>
 
-    <!-- ② Hearing -->
-    <section id="screenHearing" class="screen" aria-live="polite">
-      <div class="progress-block">
-        <div class="progress-meta">
-          <span id="progressPhase">質問 1 / 目安 8</span>
-          <span id="progressPct">0%</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
-      <div class="card">
-        <p class="phase-label">スタッフ読み上げ用</p>
-        <p class="question-display" id="questionText">—</p>
-        <div class="memo-box" id="memoBox">
-          <div class="memo-label">スタッフ向けメモ（読み上げない）</div>
-          <p id="memoText"></p>
-        </div>
-        <div class="mic-wrap">
-          <button type="button" class="mic-btn" id="btnMic" aria-pressed="false" aria-label="マイク。押している間録音します">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-            </svg>
-            <span id="micLabel">押して録音</span>
-          </button>
-          <p class="mic-hint">お客様の声が入るよう、マイクに向けて話してください。離すと認識が止まります。</p>
-        </div>
-        <p class="transcript-label">文字起こし</p>
-        <div class="transcript-box empty" id="transcriptBox" data-placeholder="ここに音声の文字起こしが表示されます">ここに音声の文字起こしが表示されます</div>
-        <div class="error-banner" id="hearingError" hidden></div>
-        <button type="button" class="btn btn-primary" id="btnNext" style="margin-top: 20px;">次へ</button>
-      </div>
-    </section>
+  <div class="input-bar">
+    <div class="input-bar-inner">
+      <textarea id="userInput" rows="1" placeholder="お客様の発言を入力（Enterで送信）"></textarea>
+      <button type="button" class="send-btn" id="btnSend" aria-label="送信">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
 
-    <!-- ③ Analyzing -->
-    <section id="screenAnalyzing" class="screen" aria-live="assertive">
-      <div class="card analyzing-card">
-        <div class="spinner" role="status" aria-label="分析中"></div>
-        <p class="analyzing-text">AI が分析しています…</p>
-      </div>
-    </section>
-
-    <!-- ④ Result -->
-    <section id="screenResult" class="screen" aria-live="polite">
-      <div class="card">
-        <p class="phase-label">推奨商材</p>
-        <p class="result-product" id="resultProduct">—</p>
-        <p class="result-reason" id="resultReason"></p>
-        <p class="closing-label">クロージングトーク（読み上げ）</p>
-        <div class="closing-body" id="resultClosing"></div>
-        <p class="scores-title">商材スコア</p>
-        <div id="scoresContainer"></div>
-        <button type="button" class="btn btn-primary" id="btnRestart">最初からやり直す</button>
-      </div>
-    </section>
-  </main>
-
-  <script>
+<script>
 (function () {
   'use strict';
 
-  const SYSTEM_PROMPT = `あなたは不動産会社「株式会社市兵衛」のAIヒアリングアシスタントです。
+  var SYSTEM_PROMPT =
+    'あなたはキャンディハウスの住宅営業コンサルタントAIです。\n' +
+    'スタッフは生成したセリフをそのまま読み上げます。\n\n' +
+    'キャンディハウス：超ローコスト完全注文住宅。大阪近畿特化。建物1500万円前後。' +
+    '1800万円の品質を1500万円で提供。ターゲット：年収300〜500万の30〜40代ファミリー。\n\n' +
+    'フロー：STEP1 フロントトーク→STEP2 円トーク→STEP3 進め方トーク→STEP4 テストクロージング→STEP5 阻害要因対応（競合/借金/家族/時期）→パートナー申込\n\n' +
+    '出力は必ずこの形式のみ：\n' +
+    'PHASE: （ステップ名）\n' +
+    'NAV: （状況説明2〜3文）\n' +
+    'SCRIPT: 「（読み上げセリフ）」\n' +
+    'HINT: （条件分岐ヒントまたはなし）\n\n' +
+    '上記以外のテキストを出力しないこと。';
 
-【あなたの役割】
-パートスタッフがお客様にあなたの質問を読み上げます。
-お客様の回答をもとに、以下の4商材のどれが最適かを判断してください。
+  var API_URL = 'https://api.anthropic.com/v1/messages';
+  var MODEL = 'claude-haiku-4-5-20251001';
+  var MAX_TOKENS = 600;
+  var LS_KEY = 'candy-house-api-key';
 
-【4つの商材】
-1. キャンディハウス：ローコスト新築住宅（所得が高くない・新築希望）
-2. 平屋マーケット：平屋の建て替え（高齢者・古い家・子供が独立済み）
-3. イオンハウジング藤井寺：中古＋リフォーム（新築が買えない・中古でもOK）
-4. 戸建賃貸：土地活用・相続対策（土地持ち・相続・投資に興味あり）
-
-【ヒアリングの進め方】
-- 1回の返答に対して1つの質問を返す
-- 自然な会話になるよう、お客様の言葉に共感してから次の質問をする
-- 失礼にならない丁寧な言葉遣いで
-- 質問は5〜8回程度で商材を判定できるよう効率よく進める
-- 必ず確認すること：家族構成・現在の住まい・予算感・土地の有無・きっかけ・時期
-
-【出力フォーマット】
-通常のヒアリング中は以下のJSON形式で返答すること：
-{
-  "type": "question",
-  "question": "スタッフが読み上げる質問文",
-  "memo": "スタッフ向けの補足メモ（表示はするが読み上げない）"
-}
-
-商材が判定できたら以下のJSON形式で返答すること：
-{
-  "type": "result",
-  "product": "商材名",
-  "reason": "判定理由（スタッフ向け）",
-  "closing": "クロージングトーク全文（スタッフが読み上げる）",
-  "scores": {
-    "キャンディハウス": 数値,
-    "平屋マーケット": 数値,
-    "イオンハウジング藤井寺": 数値,
-    "戸建賃貸": 数値
-  }
-}
-
-必ずJSONのみを返すこと。前置きや説明は不要。`;
-
-  const API_URL = 'https://api.anthropic.com/v1/messages';
-  const MODEL = 'claude-sonnet-4-20250514';
-  const MAX_PHASE = 8;
-  const STORAGE_KEY = 'hearing-navi-anthropic-key';
-
-  const el = {
+  var el = {
     apiKey: document.getElementById('apiKey'),
-    apiHint: document.getElementById('apiHint'),
-    speechWarning: document.getElementById('speechWarning'),
-    screenWelcome: document.getElementById('screenWelcome'),
-    screenHearing: document.getElementById('screenHearing'),
-    screenAnalyzing: document.getElementById('screenAnalyzing'),
-    screenResult: document.getElementById('screenResult'),
+    apiStatus: document.getElementById('apiStatus'),
+    screenStart: document.getElementById('screenStart'),
+    screenNav: document.getElementById('screenNav'),
+    customerName: document.getElementById('customerName'),
     btnStart: document.getElementById('btnStart'),
-    btnMic: document.getElementById('btnMic'),
-    micLabel: document.getElementById('micLabel'),
-    transcriptBox: document.getElementById('transcriptBox'),
-    btnNext: document.getElementById('btnNext'),
-    hearingError: document.getElementById('hearingError'),
-    questionText: document.getElementById('questionText'),
-    memoText: document.getElementById('memoText'),
-    memoBox: document.getElementById('memoBox'),
-    progressPhase: document.getElementById('progressPhase'),
-    progressPct: document.getElementById('progressPct'),
-    progressFill: document.getElementById('progressFill'),
-    resultProduct: document.getElementById('resultProduct'),
-    resultReason: document.getElementById('resultReason'),
-    resultClosing: document.getElementById('resultClosing'),
-    scoresContainer: document.getElementById('scoresContainer'),
-    btnRestart: document.getElementById('btnRestart')
+    phaseLabel: document.getElementById('phaseLabel'),
+    navBody: document.getElementById('navBody'),
+    userInput: document.getElementById('userInput'),
+    btnSend: document.getElementById('btnSend')
   };
 
-  let conversationHistory = [];
-  let questionIndex = 0;
-  let transcript = '';
-  let recognition = null;
-  let recogLang = 'ja-JP';
+  var conversationHistory = [];
+  var sending = false;
+  var currentCustomer = '';
 
-  function getSpeechRecognition() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    return SR ? new SR() : null;
+  // --- API Key persistence ---
+  el.apiKey.value = localStorage.getItem(LS_KEY) || '';
+  updateKeyStatus();
+
+  el.apiKey.addEventListener('input', function () {
+    localStorage.setItem(LS_KEY, el.apiKey.value.trim());
+    updateKeyStatus();
+  });
+
+  function updateKeyStatus() {
+    var k = el.apiKey.value.trim();
+    if (!k) {
+      el.apiStatus.textContent = '';
+      el.apiStatus.className = 'api-status';
+    } else {
+      el.apiStatus.textContent = '保存済';
+      el.apiStatus.className = 'api-status ok';
+    }
   }
 
-  function speechSupported() {
-    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-  }
+  function getApiKey() { return el.apiKey.value.trim(); }
 
+  // --- Screen switching ---
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(function (s) {
       s.classList.toggle('active', s.id === id);
     });
   }
 
-  function setProgress() {
-    var pct = Math.min(100, Math.round((questionIndex / MAX_PHASE) * 100));
-    el.progressFill.style.width = pct + '%';
-    el.progressPct.textContent = pct + '%';
-    el.progressPhase.textContent = '質問 ' + questionIndex + ' / 目安 ' + MAX_PHASE;
-  }
+  // --- Auto-resize textarea ---
+  el.userInput.addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
 
-  function parseAssistantJson(text) {
+  // --- Parse AI response ---
+  function parseResponse(text) {
     var raw = (text || '').trim();
-    var fence = raw.match(/^```(?:json)?\s*([\s\S]*?)```$/i);
-    if (fence) raw = fence[1].trim();
-    return JSON.parse(raw);
+    var phase = '', nav = '', script = '', hint = '';
+
+    var m;
+    m = raw.match(/PHASE:\s*(.+?)(?:\n|$)/);
+    if (m) phase = m[1].trim();
+
+    m = raw.match(/NAV:\s*([\s\S]+?)(?=\nSCRIPT:|\nHINT:|$)/);
+    if (m) nav = m[1].trim();
+
+    m = raw.match(/SCRIPT:\s*([\s\S]+?)(?=\nHINT:|$)/);
+    if (m) script = m[1].trim();
+
+    m = raw.match(/HINT:\s*([\s\S]+?)$/);
+    if (m) hint = m[1].trim();
+
+    return { phase: phase, nav: nav, script: script, hint: hint };
   }
 
-  function getApiKey() {
-    return (el.apiKey.value || '').trim();
-  }
-
-  el.apiKey.value = sessionStorage.getItem(STORAGE_KEY) || '';
-  el.apiKey.addEventListener('change', function () {
-    sessionStorage.setItem(STORAGE_KEY, getApiKey());
-  });
-  el.apiKey.addEventListener('blur', function () {
-    sessionStorage.setItem(STORAGE_KEY, getApiKey());
-  });
-
-  if (!speechSupported()) {
-    el.speechWarning.hidden = false;
-    el.speechWarning.textContent =
-      'このブラウザでは音声認識（Web Speech API）が使えません。文字起こしには Google Chrome のご利用を推奨します。Safari では非対応です。';
-  }
-
-  function setupRecognition() {
-    recognition = getSpeechRecognition();
-    if (!recognition) return;
-
-    recognition.lang = recogLang;
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = function (ev) {
-      var finalText = '';
-      var interim = '';
-      for (var i = ev.resultIndex; i < ev.results.length; i++) {
-        var r = ev.results[i];
-        if (r.isFinal) finalText += r[0].transcript;
-        else interim += r[0].transcript;
-      }
-      if (finalText) {
-        transcript = (transcript ? transcript + ' ' : '') + finalText.trim();
-      }
-      var display = transcript + (interim ? (transcript ? ' ' : '') + interim : '');
-      el.transcriptBox.textContent = display || el.transcriptBox.dataset.placeholder;
-      el.transcriptBox.classList.toggle('empty', !display);
-    };
-
-    recognition.onerror = function (ev) {
-      if (ev.error === 'aborted' || ev.error === 'no-speech') return;
-      el.hearingError.hidden = false;
-      el.hearingError.textContent =
-        ev.error === 'not-allowed'
-          ? 'マイクの使用が許可されていません。ブラウザの設定を確認してください。'
-          : '音声認識でエラーが発生しました（' + ev.error + '）。もう一度試してください。';
-    };
-
-    recognition.onend = function () {
-      el.btnMic.classList.remove('recording');
-      el.btnMic.setAttribute('aria-pressed', 'false');
-      el.micLabel.textContent = '押して録音';
-    };
-  }
-
-  setupRecognition();
-
-  function startRecog() {
-    if (!recognition) {
-      el.hearingError.hidden = false;
-      el.hearingError.textContent =
-        '音声認識が利用できません。Chrome で開き、マイク権限を許可してください。';
-      return;
-    }
-    el.hearingError.hidden = true;
-    try {
-      recognition.stop();
-    } catch (e) { /* noop */ }
-    try {
-      recognition.start();
-      el.btnMic.classList.add('recording');
-      el.btnMic.setAttribute('aria-pressed', 'true');
-      el.micLabel.textContent = '録音中…';
-    } catch (e) {
-      el.hearingError.hidden = false;
-      el.hearingError.textContent = '録音を開始できませんでした。もう一度試してください。';
-    }
-  }
-
-  function stopRecog() {
-    if (!recognition) return;
-    try {
-      recognition.stop();
-    } catch (e) { /* noop */ }
-  }
-
-  function bindPushToTalk(btn) {
-    var active = false;
-
-    function down(ev) {
-      if (ev.type === 'mousedown' && ev.button !== 0) return;
-      ev.preventDefault();
-      active = true;
-      startRecog();
+  // --- Render cards ---
+  function renderAiTurn(parsed) {
+    if (parsed.phase) {
+      el.phaseLabel.textContent = parsed.phase;
     }
 
-    function up(ev) {
-      if (!active) return;
-      ev.preventDefault();
-      active = false;
-      stopRecog();
+    if (parsed.nav) {
+      var navCard = document.createElement('div');
+      navCard.className = 'card card-nav';
+      navCard.innerHTML =
+        '<div class="card-label blue">📊 AI分析</div>' +
+        '<div class="card-body"></div>';
+      navCard.querySelector('.card-body').textContent = parsed.nav;
+      el.navBody.appendChild(navCard);
     }
 
-    btn.addEventListener('mousedown', down);
-    btn.addEventListener('mouseup', up);
-    btn.addEventListener('mouseleave', up);
-    btn.addEventListener('touchstart', down, { passive: false });
-    btn.addEventListener('touchend', up, { passive: false });
-    btn.addEventListener('touchcancel', up, { passive: false });
+    if (parsed.script) {
+      var scriptCard = document.createElement('div');
+      scriptCard.className = 'card card-script';
+      scriptCard.innerHTML =
+        '<div class="card-label orange">🎤 読み上げスクリプト</div>' +
+        '<div class="card-body"></div>';
+      scriptCard.querySelector('.card-body').textContent = parsed.script;
+      el.navBody.appendChild(scriptCard);
+    }
+
+    if (parsed.hint && parsed.hint !== 'なし') {
+      var hintCard = document.createElement('div');
+      hintCard.className = 'card card-hint';
+      hintCard.innerHTML =
+        '<div class="card-label orange">💡 場合分けヒント</div>' +
+        '<div class="card-body"></div>';
+      hintCard.querySelector('.card-body').textContent = parsed.hint;
+      el.navBody.appendChild(hintCard);
+    }
+
+    scrollToBottom();
   }
 
-  bindPushToTalk(el.btnMic);
+  function renderUserBubble(text) {
+    var div = document.createElement('div');
+    div.className = 'user-bubble';
+    div.innerHTML = '<div class="user-label">お客様の発言</div>';
+    var body = document.createElement('div');
+    body.textContent = text;
+    div.appendChild(body);
+    el.navBody.appendChild(div);
+    scrollToBottom();
+  }
 
+  function renderLoading() {
+    var div = document.createElement('div');
+    div.className = 'card loading-card';
+    div.id = 'loadingCard';
+    div.innerHTML = '<span class="dot-pulse">AI分析中</span>';
+    el.navBody.appendChild(div);
+    scrollToBottom();
+    return div;
+  }
+
+  function removeLoading() {
+    var lc = document.getElementById('loadingCard');
+    if (lc) lc.remove();
+  }
+
+  function renderError(msg) {
+    var div = document.createElement('div');
+    div.className = 'error-msg';
+    div.textContent = msg;
+    el.navBody.appendChild(div);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    requestAnimationFrame(function () {
+      el.navBody.scrollTop = el.navBody.scrollHeight;
+    });
+  }
+
+  // --- Claude API ---
   async function callClaude() {
     var key = getApiKey();
-    if (!key) {
-      throw new Error('APIキーを入力してください。');
-    }
+    if (!key) throw new Error('APIキーを入力してください。');
 
     var res = await fetch(API_URL, {
       method: 'POST',
@@ -782,184 +588,102 @@
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1500,
+        max_tokens: MAX_TOKENS,
         system: SYSTEM_PROMPT,
         messages: conversationHistory
       })
     });
 
     if (!res.ok) {
-      var errBody = '';
-      try {
-        errBody = await res.text();
-      } catch (e) { /* noop */ }
-      throw new Error(errBody || 'APIエラー ' + res.status);
+      var errText = '';
+      try { errText = await res.text(); } catch (e) {}
+      if (res.status === 401) throw new Error('APIキーが無効です。正しいキーを入力してください。');
+      throw new Error('APIエラー (' + res.status + ') ' + errText);
     }
 
     var data = await res.json();
     var block = data.content && data.content[0];
-    if (!block || block.type !== 'text') {
-      throw new Error('想定外の応答形式です。もう一度試してください。');
+    if (!block || block.type !== 'text') throw new Error('想定外のレスポンス形式です。');
+    return block.text;
+  }
+
+  // --- Send message flow ---
+  async function sendMessage(userText) {
+    if (sending) return;
+    sending = true;
+    el.btnSend.disabled = true;
+
+    conversationHistory.push({ role: 'user', content: userText });
+    var loader = renderLoading();
+
+    try {
+      var raw = await callClaude();
+      removeLoading();
+
+      conversationHistory.push({ role: 'assistant', content: raw });
+      var parsed = parseResponse(raw);
+      renderAiTurn(parsed);
+    } catch (err) {
+      removeLoading();
+      conversationHistory.pop();
+      renderError(err.message || 'エラーが発生しました。もう一度試してください。');
     }
-    return parseAssistantJson(block.text);
+
+    sending = false;
+    el.btnSend.disabled = false;
+    el.userInput.focus();
   }
 
-  function applyQuestion(obj) {
-    el.questionText.textContent = obj.question || '（質問を取得できませんでした）';
-    el.memoText.textContent = obj.memo || '—';
-    el.memoBox.style.display = obj.memo ? 'block' : 'none';
-  }
-
-  function applyResult(obj) {
-    el.resultProduct.textContent = obj.product || '—';
-    el.resultReason.textContent = obj.reason || '';
-    el.resultClosing.textContent = obj.closing || '';
-
-    el.scoresContainer.innerHTML = '';
-    var scores = obj.scores || {};
-    var names = ['キャンディハウス', '平屋マーケット', 'イオンハウジング藤井寺', '戸建賃貸'];
-    var max = 0;
-    names.forEach(function (n) {
-      var v = Number(scores[n]);
-      if (!isNaN(v) && v > max) max = v;
-    });
-    if (max <= 0) max = 100;
-
-    names.forEach(function (n) {
-      var v = Number(scores[n]);
-      if (isNaN(v)) v = 0;
-      var pct = Math.min(100, Math.round((v / max) * 100));
-      var row = document.createElement('div');
-      row.className = 'score-row';
-      row.innerHTML =
-        '<span class="score-name">' +
-        escapeHtml(n) +
-        '</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:0%"></div></div><span class="score-val">' +
-        v +
-        '</span>';
-      el.scoresContainer.appendChild(row);
-      requestAnimationFrame(function () {
-        row.querySelector('.score-bar-fill').style.width = pct + '%';
-      });
-    });
-  }
-
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
-  function resetHearingUi() {
-    transcript = '';
-    el.transcriptBox.textContent = el.transcriptBox.dataset.placeholder;
-    el.transcriptBox.classList.add('empty');
-    el.hearingError.hidden = true;
-  }
-
-  el.btnStart.addEventListener('click', async function () {
+  // --- Start ---
+  el.btnStart.addEventListener('click', function () {
     if (!getApiKey()) {
-      el.apiHint.hidden = false;
-      el.apiHint.textContent = 'Claude API キーを入力してから開始してください。';
+      el.apiStatus.textContent = '未入力';
+      el.apiStatus.className = 'api-status ng';
       el.apiKey.focus();
       return;
     }
-    el.apiHint.hidden = true;
-    sessionStorage.setItem(STORAGE_KEY, getApiKey());
-
+    currentCustomer = el.customerName.value.trim() || 'お客様';
     conversationHistory = [];
-    questionIndex = 1;
-    resetHearingUi();
+    el.navBody.innerHTML = '';
+    el.phaseLabel.textContent = '—';
+    showScreen('screenNav');
 
-    conversationHistory.push({
-      role: 'user',
-      content:
-        'ヒアリングを開始します。これからスタッフが私の質問をお客様に読み上げ、お客様の回答を文字起こしで送ります。まず最初の質問をJSONで返してください。'
+    var restartRow = document.createElement('div');
+    restartRow.className = 'restart-row';
+    restartRow.innerHTML = '<button type="button" class="restart-link" id="btnRestart">最初からやり直す</button>';
+    el.navBody.appendChild(restartRow);
+    document.getElementById('btnRestart').addEventListener('click', function () {
+      conversationHistory = [];
+      el.customerName.value = '';
+      showScreen('screenStart');
     });
 
-    showScreen('screenAnalyzing');
-    try {
-      var parsed = await callClaude();
-      if (parsed.type !== 'question') {
-        if (parsed.type === 'result') {
-          questionIndex = MAX_PHASE;
-          applyResult(parsed);
-          showScreen('screenResult');
-          return;
-        }
-        throw new Error('最初の応答が質問形式ではありません。もう一度試してください。');
-      }
-      conversationHistory.push({
-        role: 'assistant',
-        content: JSON.stringify(parsed)
-      });
-      setProgress();
-      applyQuestion(parsed);
-      showScreen('screenHearing');
-    } catch (err) {
-      conversationHistory = [];
-      showScreen('screenWelcome');
-      el.apiHint.hidden = false;
-      el.apiHint.textContent =
-        '通信エラー: ' + (err.message || '不明') + ' — もう一度試してください。（ブラウザから直接 API を呼ぶ場合は CORS の制限がある環境では失敗することがあります）';
-    }
+    sendMessage(currentCustomer + '様がご来場されました。STEP1 フロントトークの最初のセリフを生成してください。');
   });
 
-  el.btnNext.addEventListener('click', async function () {
-    var text = transcript.trim();
-    if (!text) {
-      el.hearingError.hidden = false;
-      el.hearingError.textContent = 'お客様の返答を録音するか、音声認識結果がある状態で次へ進んでください。';
-      return;
-    }
-
-    el.hearingError.hidden = true;
-    conversationHistory.push({ role: 'user', content: text });
-    resetHearingUi();
-    showScreen('screenAnalyzing');
-
-    try {
-      var parsed = await callClaude();
-      conversationHistory.push({
-        role: 'assistant',
-        content: typeof parsed === 'object' ? JSON.stringify(parsed) : String(parsed)
-      });
-
-      if (parsed.type === 'result') {
-        questionIndex = MAX_PHASE;
-        setProgress();
-        applyResult(parsed);
-        showScreen('screenResult');
-        return;
-      }
-
-      if (parsed.type !== 'question') {
-        throw new Error('AIの応答形式が正しくありません。もう一度試してください。');
-      }
-
-      questionIndex++;
-      setProgress();
-      applyQuestion(parsed);
-      showScreen('screenHearing');
-    } catch (err) {
-      conversationHistory.pop();
-      showScreen('screenHearing');
-      el.hearingError.hidden = false;
-      el.hearingError.textContent =
-        '通信エラー: もう一度試してください。 ' + (err.message || '');
-    }
+  el.customerName.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); el.btnStart.click(); }
   });
 
-  el.btnRestart.addEventListener('click', function () {
-    conversationHistory = [];
-    questionIndex = 0;
-    resetHearingUi();
-    setProgress();
-    showScreen('screenWelcome');
-  });
+  // --- User input ---
+  function handleSend() {
+    var text = el.userInput.value.trim();
+    if (!text || sending) return;
+    el.userInput.value = '';
+    el.userInput.style.height = 'auto';
+    renderUserBubble(text);
+    sendMessage(currentCustomer + '様の発言：「' + text + '」');
+  }
 
-  setProgress();
+  el.btnSend.addEventListener('click', handleSend);
+
+  el.userInput.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) {
+      ev.preventDefault();
+      handleSend();
+    }
+  });
 })();
-  </script>
+</script>
 </body>
 </html>
