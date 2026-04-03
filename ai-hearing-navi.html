@@ -354,6 +354,140 @@
     font-family: inherit;
   }
   .restart-link:hover { color: var(--accent); }
+
+  /* ===== Survey Screen ===== */
+  .survey-screen {
+    padding: 0;
+  }
+  .survey-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 20px;
+    text-align: center;
+    position: sticky;
+    top: 41px;
+    z-index: 50;
+  }
+  .survey-header-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .survey-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px 32px;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .survey-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .survey-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .survey-card-title .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .checkbox-group, .radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .checkbox-group label, .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .checkbox-group label:has(input:checked),
+  .radio-group label:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .checkbox-group input, .radio-group input {
+    accent-color: var(--accent);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .survey-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: inherit;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .survey-input:focus { outline: none; border-color: var(--accent); }
+
+  .survey-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .survey-input-row input {
+    max-width: 120px;
+  }
+  .survey-input-row .unit {
+    font-size: 15px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .survey-textarea {
+    width: 100%;
+    min-height: 72px;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: inherit;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .survey-textarea:focus { outline: none; border-color: var(--accent); }
+
+  .survey-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .survey-footer {
+    padding: 0 16px 32px;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+  }
 </style>
 </head>
 <body>
@@ -378,6 +512,100 @@
       <input type="text" id="customerName" placeholder="例：田中">
     </div>
     <button type="button" class="btn btn-accent" id="btnStart">スタート</button>
+  </div>
+</div>
+
+<!-- Survey Screen -->
+<div id="screenSurvey" class="screen survey-screen">
+  <div class="survey-header">
+    <div class="survey-header-title">📋 アンケート情報を入力</div>
+  </div>
+  <div class="survey-body">
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">1</span>家族構成</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">同席者（複数選択可）</p>
+      <div class="checkbox-group" id="attendees">
+        <label><input type="checkbox" value="ご主人様">ご主人様</label>
+        <label><input type="checkbox" value="奥様">奥様</label>
+        <label><input type="checkbox" value="お父様">お父様</label>
+        <label><input type="checkbox" value="お母様">お母様</label>
+        <label><input type="checkbox" value="お子様">お子様</label>
+      </div>
+      <div class="survey-input-row" style="margin-top:12px;">
+        <label style="font-size:13px;color:var(--muted);white-space:nowrap;">家族人数</label>
+        <input type="number" class="survey-input" id="familyCount" min="1" max="20" placeholder="例：4" style="max-width:100px;">
+        <span class="unit">人</span>
+      </div>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">2</span>現在の住まい</div>
+      <div class="radio-group" id="housing">
+        <label><input type="radio" name="housing" value="アパート">アパート</label>
+        <label><input type="radio" name="housing" value="持家">持家</label>
+        <label><input type="radio" name="housing" value="同居">同居</label>
+        <label><input type="radio" name="housing" value="公営住宅">公営住宅</label>
+        <label><input type="radio" name="housing" value="その他">その他</label>
+      </div>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">3</span>家賃（駐車場代込み）</div>
+      <div class="survey-input-row">
+        <input type="number" class="survey-input" id="rent" min="0" placeholder="例：7" style="max-width:120px;">
+        <span class="unit">万円</span>
+      </div>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">4</span>予算感</div>
+      <div class="radio-group" id="budget">
+        <label><input type="radio" name="budget" value="1500万以下">1500万以下</label>
+        <label><input type="radio" name="budget" value="1800万以下">1800万以下</label>
+        <label><input type="radio" name="budget" value="2000万以下">2000万以下</label>
+        <label><input type="radio" name="budget" value="2500万以下">2500万以下</label>
+        <label><input type="radio" name="budget" value="3000万以下">3000万以下</label>
+        <label><input type="radio" name="budget" value="決まっていない">決まっていない</label>
+      </div>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">5</span>土地の有無</div>
+      <div class="radio-group" id="land">
+        <label><input type="radio" name="land" value="持っている">持っている</label>
+        <label><input type="radio" name="land" value="持っていない">持っていない</label>
+      </div>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">6</span>建築時期</div>
+      <div class="radio-group" id="timing">
+        <label><input type="radio" name="timing" value="半年以内">半年以内</label>
+        <label><input type="radio" name="timing" value="1年以内">1年以内</label>
+        <label><input type="radio" name="timing" value="まだ先">まだ先</label>
+      </div>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">7</span>来場きっかけ</div>
+      <textarea class="survey-textarea" id="visitReason" placeholder="例：チラシを見て、通りがかりで…"></textarea>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">8</span>家づくりのきっかけ</div>
+      <textarea class="survey-textarea" id="buildReason" placeholder="例：子供が大きくなってきた、家賃がもったいない…"></textarea>
+    </div>
+
+    <div class="survey-card">
+      <div class="survey-card-title"><span class="num">9</span>現在の住まいの不満</div>
+      <textarea class="survey-textarea" id="complaint" placeholder="例：狭い、古い、収納が少ない…"></textarea>
+    </div>
+
+    <p class="survey-note" style="text-align:center;margin-bottom:14px;">※すべて任意入力です。空欄でも次に進めます。</p>
+  </div>
+  <div class="survey-footer">
+    <button type="button" class="btn btn-accent" id="btnSurveyStart">ヒアリング開始</button>
   </div>
 </div>
 
@@ -425,9 +653,11 @@
     apiKey: document.getElementById('apiKey'),
     apiStatus: document.getElementById('apiStatus'),
     screenStart: document.getElementById('screenStart'),
+    screenSurvey: document.getElementById('screenSurvey'),
     screenNav: document.getElementById('screenNav'),
     customerName: document.getElementById('customerName'),
     btnStart: document.getElementById('btnStart'),
+    btnSurveyStart: document.getElementById('btnSurveyStart'),
     phaseLabel: document.getElementById('phaseLabel'),
     navBody: document.getElementById('navBody'),
     userInput: document.getElementById('userInput'),
@@ -437,6 +667,7 @@
   var conversationHistory = [];
   var sending = false;
   var currentCustomer = '';
+  var activeSystemPrompt = SYSTEM_PROMPT;
 
   // --- API Key persistence ---
   el.apiKey.value = localStorage.getItem(LS_KEY) || '';
@@ -589,7 +820,7 @@
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS,
-        system: SYSTEM_PROMPT,
+        system: activeSystemPrompt,
         messages: conversationHistory
       })
     });
@@ -634,7 +865,60 @@
     el.userInput.focus();
   }
 
-  // --- Start ---
+  // --- Collect survey data ---
+  function collectSurvey() {
+    var UNKNOWN = '不明（会話の中で確認する）';
+
+    var checked = [];
+    document.querySelectorAll('#attendees input:checked').forEach(function (cb) {
+      checked.push(cb.value);
+    });
+    var attendees = checked.length ? checked.join('、') : UNKNOWN;
+
+    var familyCount = document.getElementById('familyCount').value.trim();
+    if (familyCount) attendees += '（家族' + familyCount + '人）';
+
+    var housingEl = document.querySelector('input[name="housing"]:checked');
+    var housing = housingEl ? housingEl.value : UNKNOWN;
+
+    var rentVal = document.getElementById('rent').value.trim();
+    var rent = rentVal ? rentVal + '万円' : UNKNOWN;
+
+    var budgetEl = document.querySelector('input[name="budget"]:checked');
+    var budget = budgetEl ? budgetEl.value : UNKNOWN;
+
+    var landEl = document.querySelector('input[name="land"]:checked');
+    var land = landEl ? landEl.value : UNKNOWN;
+
+    var timingEl = document.querySelector('input[name="timing"]:checked');
+    var timing = timingEl ? timingEl.value : UNKNOWN;
+
+    var visitReason = document.getElementById('visitReason').value.trim() || UNKNOWN;
+    var buildReason = document.getElementById('buildReason').value.trim() || UNKNOWN;
+    var complaint = document.getElementById('complaint').value.trim() || UNKNOWN;
+
+    return '\n\n---アンケート情報---\n' +
+      '同席者：' + attendees + '\n' +
+      '現在の住まい：' + housing + '\n' +
+      '家賃：' + rent + '\n' +
+      '予算：' + budget + '\n' +
+      '土地：' + land + '\n' +
+      '建築時期：' + timing + '\n' +
+      '来場きっかけ：' + visitReason + '\n' +
+      '家づくりのきっかけ：' + buildReason + '\n' +
+      '住まいの不満：' + complaint;
+  }
+
+  function resetSurveyForm() {
+    document.querySelectorAll('#screenSurvey input[type="checkbox"], #screenSurvey input[type="radio"]').forEach(function (inp) {
+      inp.checked = false;
+    });
+    document.querySelectorAll('#screenSurvey input[type="number"], #screenSurvey textarea').forEach(function (inp) {
+      inp.value = '';
+    });
+  }
+
+  // --- Start → Survey ---
   el.btnStart.addEventListener('click', function () {
     if (!getApiKey()) {
       el.apiStatus.textContent = '未入力';
@@ -643,6 +927,19 @@
       return;
     }
     currentCustomer = el.customerName.value.trim() || 'お客様';
+    resetSurveyForm();
+    showScreen('screenSurvey');
+  });
+
+  el.customerName.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); el.btnStart.click(); }
+  });
+
+  // --- Survey → Nav ---
+  el.btnSurveyStart.addEventListener('click', function () {
+    var surveyText = collectSurvey();
+    activeSystemPrompt = SYSTEM_PROMPT + surveyText;
+
     conversationHistory = [];
     el.navBody.innerHTML = '';
     el.phaseLabel.textContent = '—';
@@ -654,15 +951,12 @@
     el.navBody.appendChild(restartRow);
     document.getElementById('btnRestart').addEventListener('click', function () {
       conversationHistory = [];
+      activeSystemPrompt = SYSTEM_PROMPT;
       el.customerName.value = '';
       showScreen('screenStart');
     });
 
-    sendMessage(currentCustomer + '様がご来場されました。STEP1 フロントトークの最初のセリフを生成してください。');
-  });
-
-  el.customerName.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter') { ev.preventDefault(); el.btnStart.click(); }
+    sendMessage(currentCustomer + '様がご来場されました。アンケート情報を踏まえて、STEP1 フロントトークの最初のセリフを生成してください。');
   });
 
   // --- User input ---
