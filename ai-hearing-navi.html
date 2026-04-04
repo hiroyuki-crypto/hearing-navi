@@ -679,6 +679,18 @@
     </div>
 
     <div class="survey-card">
+      <div class="survey-card-title">📍 来場タイプ</div>
+      <p style="font-size:14px;font-weight:700;margin-bottom:4px;">来場タイプ</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">1つ選択してください（任意）</p>
+      <div class="radio-group" id="visitTypeGroup">
+        <label><input type="radio" name="visitType" value="モデルハウス来場">モデルハウス来場</label>
+        <label><input type="radio" name="visitType" value="店舗・事務所来場">店舗・事務所来場</label>
+        <label><input type="radio" name="visitType" value="イベント・見学会">イベント・見学会</label>
+        <label><input type="radio" name="visitType" value="その他">その他</label>
+      </div>
+    </div>
+
+    <div class="survey-card">
       <div class="survey-card-title"><span class="num">1</span>家族構成</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">同席者（複数選択可）</p>
       <div class="checkbox-group" id="attendees">
@@ -867,6 +879,13 @@
     '  目の前に誰がいるかは既にわかっているので、自然に会話をスタートする。\n' +
     '- 例：ご夫婦で来ている→「今日はご夫婦でお越しいただいてありがとうございます！」のように始める。\n' +
     '- 来場者の行がない、または未入力に相当する場合のみ、実際の来場構成は会話の中で確認する。\n\n' +
+    '【来場タイプとSTEP1の冒頭】\n' +
+    '- アンケート情報の「来場タイプ」に応じて、最初のSCRIPT（フロントトーク1発目）の言い出しを必ず変える。\n' +
+    '- モデルハウス来場 → SCRIPTは必ず「モデルハウスへようこそ」から始める（続きは来場者・トーンに合わせて自然に）。\n' +
+    '- 店舗・事務所来場 → SCRIPTは必ず「今日はわざわざお越しいただいて」から始める。\n' +
+    '- イベント・見学会 → SCRIPTは必ず「今日のイベントに来てくれてありがとう」から始める。\n' +
+    '- その他、または来場タイプが未入力 → 状況に合わせ自然な一言から。「ございます」など堅い表現は使わない。\n' +
+    '- 来場者情報（ご夫婦など）がある場合は、この冒頭の直後に続けて自然に組み合わせる。\n\n' +
     '【アンケート情報の扱い】\n' +
     '- 「本日の実際の来場者」が入力されているときは、それを最優先。アンケートの「同席者」は参考にすぎない。\n' +
     '- 来場者が未入力のとき：アンケートの「同席者」は事前記入の家族構成であり今日の来場者とは限らない。会話の中で自然に確認・深掘りする。\n' +
@@ -1391,6 +1410,9 @@
     var familyCount = document.getElementById('familyCount').value.trim();
     if (familyCount) attendees += '（家族' + familyCount + '人）';
 
+    var visitTypeEl = document.querySelector('input[name="visitType"]:checked');
+    var visitType = visitTypeEl ? visitTypeEl.value : UNKNOWN;
+
     var housingEl = document.querySelector('input[name="housing"]:checked');
     var housing = housingEl ? housingEl.value : UNKNOWN;
 
@@ -1411,6 +1433,7 @@
     var complaint = document.getElementById('complaint').value.trim() || UNKNOWN;
 
     return '\n\n---アンケート情報---\n' +
+      '来場タイプ：' + visitType + '\n' +
       '同席者：' + attendees + '\n' +
       '現在の住まい：' + housing + '\n' +
       '家賃：' + rent + '\n' +
