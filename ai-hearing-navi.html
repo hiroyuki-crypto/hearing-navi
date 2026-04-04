@@ -380,6 +380,102 @@
   .undo-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   .undo-btn:disabled:hover { background: var(--surface); color: var(--muted); border-color: var(--border); }
 
+  /* ===== Estimate Panel ===== */
+  .estimate-panel {
+    background: #FFF8F0;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+    animation: cardIn 0.22s ease;
+  }
+  .estimate-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .estimate-loading {
+    text-align: center;
+    padding: 16px 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .estimate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  .estimate-row:last-child { border-bottom: none; }
+  .estimate-row-label { color: var(--muted); }
+  .estimate-row-value { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .estimate-row-value.highlight {
+    color: var(--accent);
+    font-size: 18px;
+  }
+  .estimate-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    text-align: right;
+  }
+  .estimate-edit {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+  }
+  .estimate-edit-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .estimate-edit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .estimate-edit-row label {
+    color: var(--muted);
+    font-size: 13px;
+    min-width: 7em;
+  }
+  .estimate-edit-row input {
+    width: 90px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    text-align: right;
+  }
+  .estimate-edit-row input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .estimate-edit-row .unit { color: var(--muted); font-size: 13px; }
+  .estimate-use-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .estimate-use-btn:hover { background: var(--accent-hover); }
+
   /* ===== Survey Screen ===== */
   .survey-screen {
     padding: 0;
@@ -684,9 +780,13 @@
     '       ○ 「今のアパート、何か不便なこととかありますか？」\n' +
     '- 例：× 「新しいお家では、どんなお部屋を作ってあげたいとお考えですか？」\n' +
     '       ○ 「新しい家やったら、どんな部屋がほしいですか？」\n\n' +
+    '【地名の検知】\n' +
+    '会話の中でお客様が具体的な地名（○○市○○町、○○区など）を言及した場合、\n' +
+    'NAVの末尾に改行して「AREA:（地名）」を追加すること。\n' +
+    '例：NAV: お客様は堺市北区を希望されています。予算感を確認します。\\nAREA: 堺市北区\n\n' +
     '出力は必ずこの形式のみ：\n' +
     'PHASE: （ステップ名）\n' +
-    'NAV: （状況説明2〜3文）\n' +
+    'NAV: （状況説明2〜3文）（地名が出たら末尾に改行してAREA: 地名）\n' +
     'SCRIPT: 「（読み上げセリフ）」\n' +
     'HINT: （条件分岐ヒントまたはなし）\n\n' +
     '上記以外のテキストを出力しないこと。';
@@ -756,7 +856,7 @@
   // --- Parse AI response ---
   function parseResponse(text) {
     var raw = (text || '').trim();
-    var phase = '', nav = '', script = '', hint = '';
+    var phase = '', nav = '', script = '', hint = '', area = '';
 
     var m;
     m = raw.match(/PHASE:\s*(.+?)(?:\n|$)/);
@@ -771,7 +871,192 @@
     m = raw.match(/HINT:\s*([\s\S]+?)$/);
     if (m) hint = m[1].trim();
 
-    return { phase: phase, nav: nav, script: script, hint: hint };
+    var areaMatch = nav.match(/AREA:\s*(.+)/);
+    if (areaMatch) {
+      area = areaMatch[1].trim();
+      nav = nav.replace(/\n?AREA:\s*.+/, '').trim();
+    }
+
+    return { phase: phase, nav: nav, script: script, hint: hint, area: area };
+  }
+
+  // --- Utilities ---
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // --- Land estimate ---
+  function calcMonthly(total, years, rate) {
+    var r = rate / 12;
+    var n = years * 12;
+    return total * r / (1 - Math.pow(1 + r, -n));
+  }
+
+  function formatMan(v) {
+    return Math.round(v).toLocaleString();
+  }
+
+  function buildEstimatePanel(areaName, container, turnElements) {
+    var panel = document.createElement('div');
+    panel.className = 'estimate-panel';
+    panel.innerHTML =
+      '<div class="estimate-title">📍 土地相場 自動試算 — ' + escapeHtml(areaName) + '</div>' +
+      '<div class="estimate-loading"><span class="dot-pulse">相場を調べています</span></div>';
+    container.appendChild(panel);
+    turnElements.push(panel);
+    scrollToBottom();
+
+    fetchLandPrice(areaName).then(function (tsuboPrice) {
+      renderEstimateBody(panel, areaName, tsuboPrice);
+      scrollToBottom();
+    }).catch(function () {
+      panel.querySelector('.estimate-loading').innerHTML =
+        '<span style="color:var(--danger);">相場情報を取得できませんでした。手動で坪単価を入力してください。</span>';
+      renderEstimateBody(panel, areaName, 0);
+      scrollToBottom();
+    });
+  }
+
+  async function fetchLandPrice(areaName) {
+    var key = getApiKey();
+    if (!key) return 0;
+
+    var res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 200,
+        system: '住宅用地の相場に詳しいアシスタントです。数字だけ簡潔に答えてください。',
+        messages: [{
+          role: 'user',
+          content: areaName + 'の住宅用土地の坪単価の相場を教えてください。SUUMOやアットホームの相場を参考に、坪単価の目安を「数字のみ」で答えてください。単位は万円です。例：45'
+        }]
+      })
+    });
+
+    if (!res.ok) return 0;
+    var data = await res.json();
+    var text = (data.content && data.content[0] && data.content[0].text) || '';
+    var nums = text.match(/(\d+)/);
+    return nums ? parseInt(nums[1], 10) : 0;
+  }
+
+  function renderEstimateBody(panel, areaName, tsuboPrice) {
+    var loadEl = panel.querySelector('.estimate-loading');
+    if (loadEl) loadEl.remove();
+
+    var TSUBO = tsuboPrice || 0;
+    var TSUBO_COUNT = 35;
+    var BUILDING = 2300;
+
+    var body = document.createElement('div');
+    body.className = 'estimate-body';
+    panel.appendChild(body);
+
+    function recalc() {
+      var tp = parseFloat(inTsubo.value) || 0;
+      var tc = parseFloat(inCount.value) || 0;
+      var bp = parseFloat(inBuilding.value) || 0;
+      var landCost = tp * tc;
+      var totalCost = landCost + bp;
+      var monthly = totalCost > 0 ? calcMonthly(totalCost * 10000, 40, 0.009) : 0;
+      var monthlyMan = Math.floor(monthly / 10000);
+      var lo = Math.max(0, monthlyMan - 2);
+      var hi = monthlyMan + 2;
+
+      rowLand.querySelector('.estimate-row-value').textContent = formatMan(landCost) + '万円';
+      rowTotal.querySelector('.estimate-row-value').textContent = formatMan(totalCost) + '万円';
+      rowMonthly.querySelector('.estimate-row-value').textContent =
+        lo + '〜' + hi + '万円';
+      currentMonthlyRange = lo + '〜' + hi + '万円';
+    }
+
+    var currentMonthlyRange = '';
+
+    var rowTsubo = makeRow('坪単価', TSUBO ? '約' + TSUBO + '万円（AI参考値）' : '—');
+    var rowLand = makeRow('土地代（' + TSUBO_COUNT + '坪）', '—');
+    var rowBuilding = makeRow('建物＋諸費用', formatMan(BUILDING) + '万円');
+    var rowTotal = makeRow('総額', '—');
+    var rowMonthly = makeRow('月々の目安', '—', true);
+
+    body.appendChild(rowTsubo);
+    body.appendChild(rowLand);
+    body.appendChild(rowBuilding);
+    body.appendChild(rowTotal);
+    body.appendChild(rowMonthly);
+
+    var noteEl = document.createElement('div');
+    noteEl.className = 'estimate-note';
+    noteEl.textContent = '40年・金利0.9%で試算';
+    body.appendChild(noteEl);
+
+    var editSection = document.createElement('div');
+    editSection.className = 'estimate-edit';
+    editSection.innerHTML = '<div class="estimate-edit-title">数値を編集して再計算</div>';
+
+    var inTsubo = makeInput('坪単価', TSUBO || '', '万円');
+    var inCount = makeInput('坪数', TSUBO_COUNT, '坪');
+    var inBuilding = makeInput('建物＋諸費用', BUILDING, '万円');
+
+    editSection.appendChild(inTsubo.parentElement);
+    editSection.appendChild(inCount.parentElement);
+    editSection.appendChild(inBuilding.parentElement);
+    body.appendChild(editSection);
+
+    var useBtn = document.createElement('button');
+    useBtn.type = 'button';
+    useBtn.className = 'estimate-use-btn';
+    useBtn.textContent = 'この金額をトークに使う →';
+    useBtn.addEventListener('click', function () {
+      if (currentMonthlyRange) {
+        el.userInput.value = '月々の目安は' + currentMonthlyRange + 'くらいです。';
+        el.userInput.focus();
+        el.userInput.style.height = 'auto';
+        el.userInput.style.height = Math.min(el.userInput.scrollHeight, 120) + 'px';
+      }
+    });
+    body.appendChild(useBtn);
+
+    inTsubo.addEventListener('input', recalc);
+    inCount.addEventListener('input', recalc);
+    inBuilding.addEventListener('input', recalc);
+
+    if (TSUBO > 0) recalc();
+
+    function makeRow(label, value, highlight) {
+      var row = document.createElement('div');
+      row.className = 'estimate-row';
+      row.innerHTML =
+        '<span class="estimate-row-label">' + escapeHtml(label) + '</span>' +
+        '<span class="estimate-row-value' + (highlight ? ' highlight' : '') + '">' + escapeHtml(value) + '</span>';
+      return row;
+    }
+
+    function makeInput(labelText, defaultVal, unit) {
+      var row = document.createElement('div');
+      row.className = 'estimate-edit-row';
+      var lbl = document.createElement('label');
+      lbl.textContent = labelText;
+      var inp = document.createElement('input');
+      inp.type = 'number';
+      inp.value = defaultVal;
+      inp.min = '0';
+      var u = document.createElement('span');
+      u.className = 'unit';
+      u.textContent = unit;
+      row.appendChild(lbl);
+      row.appendChild(inp);
+      row.appendChild(u);
+      return inp;
+    }
   }
 
   // --- Render cards ---
@@ -791,6 +1076,10 @@
       navCard.querySelector('.card-body').textContent = parsed.nav;
       el.navBody.appendChild(navCard);
       elements.push(navCard);
+    }
+
+    if (parsed.area) {
+      buildEstimatePanel(parsed.area, el.navBody, elements);
     }
 
     if (parsed.script) {
