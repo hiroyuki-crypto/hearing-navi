@@ -124,6 +124,36 @@
   }
   .field-group input:focus { outline: none; border-color: var(--accent); }
 
+  .field-group-attendance .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .field-group-attendance .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 0;
+    color: var(--text);
+  }
+  .field-group-attendance .checkbox-group label:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .field-group-attendance .checkbox-group input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
   .btn {
     display: inline-flex;
     align-items: center;
@@ -632,6 +662,15 @@
       <label for="customerName">お客様の苗字</label>
       <input type="text" id="customerName" placeholder="例：田中">
     </div>
+    <div class="field-group field-group-attendance">
+      <label>実際に今日来てる人（スタッフ記入）</label>
+      <div class="checkbox-group" id="todayAttendees">
+        <label><input type="checkbox" value="ご主人様">ご主人様</label>
+        <label><input type="checkbox" value="奥様">奥様</label>
+        <label><input type="checkbox" value="お子様">お子様</label>
+        <label><input type="checkbox" value="その他">その他</label>
+      </div>
+    </div>
     <button type="button" class="btn btn-accent" id="btnStart">スタート</button>
   </div>
 </div>
@@ -826,11 +865,14 @@
     '=== 営業フロー ===\n' +
     'STEP1 フロントトーク → STEP2 円トーク → STEP3 進め方トーク → STEP4 テストクロージング → STEP5 阻害要因対応（競合/借金/家族/時期） → パートナー申込\n\n' +
 
+    '【今日の来場者・スタッフ確認】\n' +
+    '- セッションに「---今日の来場者（スタッフ確認）---」が付いていて来場者が列挙されている場合、その内容はスタッフが確認済みの事実として正しい。\n' +
+    '- 最初の挨拶からその人数・構成に合わせて自然に話すこと。（例：ご夫婦→「今日はご夫婦で来てくれてありがとうございます！」、ご主人様のみ→「今日は来てくれてありがとうございます！」など）\n' +
+    '- 来場者が未入力の場合のみ、実際の来場構成は会話で確認する。\n\n' +
     '【アンケート情報の扱い】\n' +
-    '- アンケートの「同席者」は事前記入された家族構成であり、今日の来場者とは限らない。\n' +
-    '- 例：アンケートに「ご主人様・奥様」とあっても、実際はご主人様だけかもしれない。\n' +
-    '- そのため最初のセリフで必ず「今日はお一人で来られましたか？」等と実際の来場者を確認する。\n' +
-    '- アンケートの他の項目も参考情報として活用し、会話の中で自然に確認・深掘りする。\n\n' +
+    '- 「今日の来場者（スタッフ確認）」が入力されているときは、それを最優先。アンケートの「同席者」は参考にすぎない。\n' +
+    '- 来場者が未入力のとき：アンケートの「同席者」は事前記入の家族構成であり今日の来場者とは限らない。会話の中で自然に確認・深掘りする。\n' +
+    '- アンケートの他の項目（住まい・家賃・予算など）も参考として活用し、会話の中で確認・深掘りする。\n\n' +
 
     '【セリフのトーン（厳守）】\n' +
     '- 敬語は使うが堅苦しくしない。関西のハウスメーカースタッフが自然に話す感じ。\n' +
@@ -1308,6 +1350,40 @@
     el.userInput.focus();
   }
 
+  function collectTodayAttendeesText() {
+    var checked = [];
+    document.querySelectorAll('#todayAttendees input:checked').forEach(function (cb) {
+      checked.push(cb.value);
+    });
+
+    var has主人 = checked.indexOf('ご主人様') >= 0;
+    var has奥 = checked.indexOf('奥様') >= 0;
+    var is夫婦のみ = has主人 && has奥 && checked.length === 2;
+
+    var line = checked.length
+      ? '本日お席にいらっしゃる方（スタッフ確認済み）：' + checked.join('、')
+      : '本日お席にいらっしゃる方：未入力（会話の中で来場構成を確認する）';
+
+    var hint = '';
+    if (is夫婦のみ) {
+      hint = '※構成はご夫婦のみ。最初のセリフは「今日はご夫婦で来てくれてありがとうございます！」のような自然な言い回しが望ましい。\n';
+    } else if (has主人 && has奥 && !is夫婦のみ) {
+      hint = '※ご夫婦に加え他の方も来場。家族で・ご家族でなど、人数に合わせた自然な挨拶にすること。\n';
+    } else if (checked.length === 1 && checked[0] === 'ご主人様') {
+      hint = '※ご主人様のみの想定。挨拶はお一人向けの自然な言い回しで。\n';
+    } else if (checked.length === 1 && checked[0] === '奥様') {
+      hint = '※奥様のみの想定。挨拶はお一人向けの自然な言い回しで。\n';
+    } else if (checked.length >= 2) {
+      hint = '※複数名の来場。構成に合わせて自然な挨拶をすること。\n';
+    }
+
+    return '\n\n---今日の来場者（スタッフ確認）---\n' +
+      line + '\n' +
+      hint +
+      '※上記が「スタッフ確認済み」のときは事実として扱い、来場確認のための冗長な質問はしない。\n' +
+      '※未入力のときはこのブロックの指示は適用せず、会話で来場者を確認する。\n';
+  }
+
   // --- Collect survey data ---
   function collectSurvey() {
     var UNKNOWN = '不明（会話の中で確認する）';
@@ -1380,7 +1456,7 @@
 
   // --- Survey → Nav ---
   el.btnSurveyStart.addEventListener('click', function () {
-    var surveyText = collectSurvey();
+    var surveyText = collectTodayAttendeesText() + collectSurvey();
     activeSystemPrompt = SYSTEM_PROMPT + surveyText;
 
     conversationHistory = [];
@@ -1404,6 +1480,7 @@
       turnGroups = [];
       activeSystemPrompt = SYSTEM_PROMPT;
       el.customerName.value = '';
+      document.querySelectorAll('#todayAttendees input').forEach(function (inp) { inp.checked = false; });
       showScreen('screenStart');
     });
 
